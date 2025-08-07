@@ -170,19 +170,20 @@ def user_dashboard():
                 db.collection("orders").add(order)
                 st.success("✅ Order placed successfully!")
                 st.rerun()
-
     with tab2:
         st.subheader("Track Your Orders")
         orders = db.collection("orders").where("email", "==", st.session_state.user_email).where("status", "in", ["Order Placed", "Out for Delivery"]).get()
         for o in orders:
             data = o.to_dict()
-            st.markdown(f"**Status:** 🟢 {data['status']}")
+            status = data["status"]
+            traffic = {"Order Placed": "🔴", "Out for Delivery": "🟡", "Delivered": "🟢"}
+            status_text = f"{traffic.get(status)} {status}"
+            st.markdown(f"**Status:** {status_text}")
             st.markdown(f"**Date:** {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
-            if st.button("Delete", key="delete_" + o.id):
+            if st.button("Delete", key=o.id):
                 db.collection("orders").document(o.id).delete()
                 st.success("Order deleted.")
-                st.experimental_rerun()
-
+                st.rerun()
     with tab3:
         st.subheader("Order History")
         delivered_orders = db.collection("orders").where("email", "==", st.session_state.user_email).where("status", "==", "Delivered").get()
