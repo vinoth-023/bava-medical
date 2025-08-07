@@ -1,4 +1,4 @@
-# bava_medical_app.py (Updated with all requested fixes and enhancements)
+# bava_medical_app.py (Fully Updated & Final Version)
 
 import streamlit as st
 import firebase_admin
@@ -8,7 +8,7 @@ import os
 import uuid
 import time
 
-# Firebase Init
+# -------------------------- Firebase Init --------------------------
 firebase_config = dict(st.secrets["firebase"])
 if not firebase_admin._apps:
     cred = credentials.Certificate(firebase_config)
@@ -18,6 +18,7 @@ db = firestore.client()
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+
 def save_image(uploaded_file):
     ext = uploaded_file.name.split(".")[-1]
     filename = f"{uuid.uuid4()}.{ext}"
@@ -25,6 +26,7 @@ def save_image(uploaded_file):
     with open(filepath, "wb") as f:
         f.write(uploaded_file.getbuffer())
     return filepath
+
 
 # -------------------------- Pages --------------------------
 def home_page():
@@ -59,6 +61,7 @@ def home_page():
             st.button("Login as Admin", on_click=lambda: st.session_state.update({"page": "admin_login"}))
             st.markdown("</div>", unsafe_allow_html=True)
 
+
 def user_login():
     st.subheader("User Login")
     email = st.text_input("Email")
@@ -74,6 +77,7 @@ def user_login():
         st.session_state.page = "user_register"
     if st.button("⬅️ Back"):
         st.session_state.page = "home"
+
 
 def user_register():
     st.subheader("Register New User")
@@ -95,11 +99,12 @@ def user_register():
     if st.button("⬅️ Back"):
         st.session_state.page = "user_login"
 
+
 def user_dashboard():
     st.title("Welcome to Bava Medical Shop")
     st.button("🔓 Logout", on_click=lambda: st.session_state.clear())
 
-    tab1, tab2, tab3 = st.tabs(["🆕 New Order", "📦 Track Order", "📜 Order History"])
+    tab1, tab2, tab3 = st.tabs(["\U0001f195 New Order", "📦 Track Order", "📜 Order History"])
 
     with tab1:
         st.subheader("Place a New Order")
@@ -154,6 +159,7 @@ def user_dashboard():
                 st.success("Re-ordered successfully!")
                 st.rerun()
 
+
 def admin_login():
     st.subheader("Admin Login")
     email = st.text_input("Admin Email")
@@ -166,6 +172,7 @@ def admin_login():
             st.error("Invalid admin credentials")
     if st.button("⬅️ Back"):
         st.session_state.page = "home"
+
 
 def admin_dashboard():
     st.title("📢 Masha Allah - Today's Orders")
@@ -213,6 +220,7 @@ def admin_dashboard():
                 st.warning("Delivered order deleted.")
                 st.rerun()
             st.markdown("---")
+
 
 # -------------------------- Router --------------------------
 if "page" not in st.session_state:
