@@ -45,7 +45,10 @@ def save_image(uploaded_file):
 
 
 # -------------------------- Pages --------------------------
+from datetime import datetime
+
 def home_page():
+    # Background styling
     st.markdown("""
         <style>
         .main::before {
@@ -65,13 +68,26 @@ def home_page():
         </style>
     """, unsafe_allow_html=True)
 
-    st.markdown("<h1 style='text-align:center; color:#007bff;'>🩺 Bava Medicals</h1>", unsafe_allow_html=True)
+    # Centered Title & Welcome
+    st.markdown("""
+        <div style='text-align: center; margin-top: 30px;'>
+            <h1 style='color:#007bff;'>🩺 Bava Medicals</h1>
+            <h4 style='margin-top: -10px;'>Welcome to Bava Medicals - Your health, our priority!</h4>
+            <p style='color: gray;'>Today's Date: <b>{}</b></p>
+        </div>
+    """.format(datetime.now().strftime("%A, %d %B %Y")), unsafe_allow_html=True)
+
+    # Centered Buttons
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         with st.container():
-            st.markdown("""<div style='padding: 30px; border-radius: 12px; background-color: #f9f9f9; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>""", unsafe_allow_html=True)
+            st.markdown("""
+                <div style='padding: 30px; border-radius: 12px; background-color: #f9f9f9; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>
+            """, unsafe_allow_html=True)
+
             st.button("Login as User", on_click=lambda: st.session_state.update({"page": "user_login"}))
             st.button("Login as Admin", on_click=lambda: st.session_state.update({"page": "admin_login"}))
+
             st.markdown("</div>", unsafe_allow_html=True)
 
 
