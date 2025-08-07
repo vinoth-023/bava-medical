@@ -186,9 +186,11 @@ def admin_dashboard():
             st.markdown(f"**Address:** {user_data.get('address')}")
             st.markdown(f"**Medicine:** {data.get('medicine')} | Age: {data.get('entered_age')} | Gender: {data.get('entered_gender')}")
             st.markdown(f"**Symptoms:** {', '.join(data.get('symptoms', [])) if data.get('symptoms') else 'None'}")
-            if data.get("image"):
-                st.image(data["image"], width=250)
-            st.markdown(f"**Current Status:** {data.get('status')}")
+           if data.get("image") and os.path.exists(data["image"]):
+            st.image(data["image"], width=250)
+        elif data.get("image"):
+         st.warning("Prescription image not found or inaccessible.")
+
 
             new_status = st.selectbox("Update Status", ["Out for Delivery", "Delivered"], key="status_" + o.id)
             if st.button("Update", key="update_" + o.id):
