@@ -9,13 +9,15 @@ import time
 # ------------- Firebase Initialization ----------------
 import json
 
-# Convert st.secrets to regular Python dict
+# Convert Streamlit secrets to dict
 firebase_config = dict(st.secrets["firebase"])
 
-# Use that dict in Certificate
-cred = credentials.Certificate(firebase_config)
-firebase_admin.initialize_app(cred)
+# Initialize Firebase only once
+if not firebase_admin._apps:
+    cred = credentials.Certificate(firebase_config)
+    firebase_admin.initialize_app(cred)
 
+# Now you can safely get Firestore instance
 db = firestore.client()
 
 UPLOAD_FOLDER = "uploads"
