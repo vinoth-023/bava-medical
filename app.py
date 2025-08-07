@@ -142,35 +142,34 @@ def user_dashboard():
 
     with tab1:
         st.subheader("Place a New Order")
+
         medicine = st.text_input("Medicine Name (optional)")
         image = st.file_uploader("Upload Medical Sheet (optional)", type=["png", "jpg", "jpeg"])
-        age = st.number_input("Enter Age", min_value=0)
-        gender = st.selectbox("Choose Gender", ["Male", "Female", "Other"])
+        age = st.number_input("Enter Age", min_value=0, step=1)
+        gender = st.selectbox("Choose Gender", ["", "Male", "Female", "Other"])
         symptoms = st.multiselect("Select Symptoms", ["Headache", "Fever", "Cold", "Cough", "Shoulder Pain", "Leg Pain"])
-if st.button("Order"):
-    # Check if Age and Gender are provided
-    if not age or not gender:
-        st.warning("Please enter both Age and Gender before placing the order.")
-    # Check if at least one of Medicine / Image / Symptoms is provided
-    elif not medicine and image is None and not symptoms:
-        st.warning("Please enter medicine name, upload prescription image, or enter symptoms.")
-    else:
-        image_url = save_image(image) if image else ""
-        order = {
-            "email": st.session_state.user_email,
-            "medicine": medicine,
-            "image": image_url,
-            "entered_age": age,
-            "entered_gender": gender,
-            "symptoms": symptoms,
-            "status": "Order Placed",
-            "timestamp": datetime.now()
-        }
-        db.collection("orders").add(order)
-        st.success("Order placed successfully!")
-        st.rerun()
 
-
+        if st.button("Order"):
+            # Validation
+            if age == 0 or gender == "":
+                st.warning("Please enter both Age and Gender before placing the order.")
+            elif not medicine.strip() and image is None and not symptoms:
+                st.warning("Please enter medicine name, upload prescription image, or select symptoms.")
+            else:
+                image_url = save_image(image) if image else ""
+                order = {
+                    "email": st.session_state.user_email,
+                    "medicine": medicine,
+                    "image": image_url,
+                    "entered_age": age,
+                    "entered_gender": gender,
+                    "symptoms": symptoms,
+                    "status": "Order Placed",
+                    "timestamp": datetime.now()
+                }
+                db.collection("orders").add(order)
+                st.success("✅ Order placed successfully!")
+                st.rerun()
 
     with tab2:
         st.subheader("Track Your Orders")
@@ -197,20 +196,6 @@ if st.button("Order"):
                 db.collection("orders").add(new_order)
                 st.success("Re-ordered successfully!")
                 st.experimental_rerun()
-
-
-def admin_login():
-    st.subheader("Admin Login")
-    email = st.text_input("Admin Email").strip().lower()
-    password = st.text_input("Admin Password", type="password")
-    if st.button("Login"):
-        if email == "admin@gmail.com" and password == "admin@123":
-            st.success("Admin login successful")
-            st.session_state.page = "admin_dashboard"
-        else:
-            st.error("Invalid admin credentials")
-
-    st.button("⬅️ Back", on_click=lambda: st.session_state.update({"page": "home"}), key="back_admin_login", type="secondary")
 
 
 def admin_dashboard():
