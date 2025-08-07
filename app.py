@@ -146,23 +146,33 @@ def user_dashboard():
                 db.collection("orders").add(order)
                 st.success("Order placed successfully!")
                 st.rerun()
+with tab2:
+    st.subheader("Track Your Orders")
+    email = st.session_state.user_email.lower()
+    orders = db.collection("orders") \
+               .where("email", "==", email) \
+               .where("status", "in", ["Order Placed", "Out for Delivery"]) \
+               .get()
 
-    with tab2:
-        st.subheader("Track Your Orders")
-        orders = db.collection("orders") \
-                   .where("email", "==", st.session_state.user_email) \
-                   .where("status", "in", ["Order Placed", "Out for Delivery"]) \
-                   .get()
-        if not orders:
-            st.info("No active orders found.")
-        for o in orders:
-            data = o.to_dict()
-            st.markdown(f"**Status:** 🟢 {data['status']}")
-            st.markdown(f"**Date:** {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
-            if st.button("Delete", key="delete_" + o.id):
-                db.collection("orders").document(o.id).delete()
-                st.success("Order deleted.")
-                st.rerun()
+    if not orders:
+        st.info("No active orders found.")
+    for o in orders:
+        data = o.to_dict()
+        status = data['status']
+        if status == "Order Placed":
+            color = "🔴"
+        elif status == "Out for Delivery":
+            color = "🟡"
+        else:
+            color = "🟢"
+
+        st.markdown(f"**Status:** {color} {status}")
+        st.markdown(f"**Date:** {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
+        if st.button("Delete", key="delete_" + o.id):
+            db.collection("orders").document(o.id).delete()
+            st.success("Order deleted.")
+            st.rerun()
+
 
     with tab3:
         st.subheader("Order History")
@@ -199,6 +209,8 @@ def admin_login():
             st.error("Invalid admin credentials")
     if st.button("⬅️ Back"):
         st.session_state.page = "home"
+
+
 def admin_dashboard():
     st.title("Admin Dashboard")
     st.button("🔓 Logout", on_click=lambda: st.session_state.clear(), key="logout_admin", type="primary")
@@ -233,9 +245,9 @@ def admin_dashboard():
                 db.collection("orders").document(order.id).update({"status": new_status})
                 st.success(f"Status updated to '{new_status}'")
                 st.rerun()
-                
-            if st.button("Delete", key="delete_pending_" + o.id):
-                db.collection("orders").document(o.id).delete()
+
+            if st.button("Delete", key="delete_pending_" + order.id):
+                db.collection("orders").document(order.id).delete()
                 st.warning("Order deleted.")
                 st.rerun()
 
@@ -255,12 +267,10 @@ def admin_dashboard():
             if data.get("image") and os.path.exists(data["image"]):
                 st.image(data["image"], caption="Uploaded Image", use_column_width=True)
 
-            col1, col2 = st.columns([1, 1])
-            with col1:
-                if st.button("🗑️ Delete Order", key=f"delete_{order.id}"):
-                    db.collection("orders").document(order.id).delete()
-                    st.success("Order deleted successfully!")
-                    st.rerun()
+            if st.button("🗑️ Delete Order", key=f"delete_{order.id}"):
+                db.collection("orders").document(order.id).delete()
+                st.success("Order deleted successfully!")
+                st.rerun()
 
 
 # -------------------------- Router --------------------------
