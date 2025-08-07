@@ -9,11 +9,12 @@ import time
 # ------------- Firebase Initialization ----------------
 import json
 
-if not firebase_admin._apps:
-    firebase_config = st.secrets["firebase"]
-    cred = credentials.Certificate(firebase_config)
-    firebase_admin.initialize_app(cred)
+# Convert st.secrets to regular Python dict
+firebase_config = dict(st.secrets["firebase"])
 
+# Use that dict in Certificate
+cred = credentials.Certificate(firebase_config)
+firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
