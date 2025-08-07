@@ -148,31 +148,31 @@ def user_dashboard():
                 st.rerun()
 
     with tab2:
-    st.subheader("Track Your Orders")
-    email = st.session_state.user_email.lower()
-    orders = db.collection("orders") \
+        st.subheader("Track Your Orders")
+        email = st.session_state.user_email.lower()
+        orders = db.collection("orders") \
                .where("email", "==", email) \
                .where("status", "in", ["Order Placed", "Out for Delivery"]) \
                .get()
-
-    if not orders:
-        st.info("No active orders found.")
-    for o in orders:
-        data = o.to_dict()
-        status = data['status']
-        if status == "Order Placed":
-            color = "🔴"
-        elif status == "Out for Delivery":
-            color = "🟡"
-        else:
-            color = "🟢"
-
-        st.markdown(f"**Status:** {color} {status}")
-        st.markdown(f"**Date:** {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
-        if st.button("Delete", key="delete_" + o.id):
-            db.collection("orders").document(o.id).delete()
-            st.success("Order deleted.")
-            st.rerun()
+        
+        if not orders:
+            st.info("No active orders found.")
+        for o in orders:
+            data = o.to_dict()
+            status = data['status']
+            if status == "Order Placed":
+                color = "🔴"
+            elif status == "Out for Delivery":
+                color = "🟡"
+            else:
+                color = "🟢"
+                
+            st.markdown(f"**Status:** {color} {status}")
+            st.markdown(f"**Date:** {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
+            if st.button("Delete", key="delete_" + o.id):
+                db.collection("orders").document(o.id).delete()
+                st.success("Order deleted.")
+                st.rerun()
 
 
     with tab3:
