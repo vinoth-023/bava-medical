@@ -61,7 +61,7 @@ def home_page():
 
 def user_login():
     st.subheader("User Login")
-    email = st.text_input("Email")
+    email = st.text_input("Email").lower()
     password = st.text_input("Password", type="password")
     if st.button("Login"):
         users = db.collection("users").where("email", "==", email).where("password", "==", password).get()
@@ -82,7 +82,7 @@ def user_register():
     gender = st.selectbox("Gender", ["Male", "Female", "Other"])
     phone = st.text_input("Phone Number")
     address = st.text_area("Address")
-    email = st.text_input("Email")
+    email = st.text_input("Email").lower()
     password = st.text_input("Password", type="password")
     if st.button("Register"):
         db.collection("users").add({
@@ -161,7 +161,7 @@ def user_dashboard():
 
 def admin_login():
     st.subheader("Admin Login")
-    email = st.text_input("Admin Email")
+    email = st.text_input("Admin Email").lower()
     password = st.text_input("Admin Password", type="password")
     if st.button("Login"):
         if email == "admin@gmail.com" and password == "admin@123":
@@ -226,6 +226,13 @@ def admin_dashboard():
 
             if data.get("image") and os.path.exists(data["image"]):
                 st.image(data["image"], caption="Uploaded Image", use_column_width=True)
+
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                if st.button("🗑️ Delete Order", key=f"delete_{order.id}"):
+                    db.collection("orders").document(order.id).delete()
+                    st.success("Order deleted successfully!")
+                    st.rerun()
 
 
 # -------------------------- Router --------------------------
