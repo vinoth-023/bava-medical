@@ -223,7 +223,7 @@ if "page" not in st.session_state:
     st.session_state.page = "home"
 
 if st.button("Refresh", key="refresh_button"):
-    st.experimental_rerun()
+    st.rerun()
 
 
 page_router = {
