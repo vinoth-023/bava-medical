@@ -211,80 +211,67 @@ def admin_login():
     if st.button("⬅️ Back"):
         st.session_state.page = "home"
 
+
 def admin_dashboard():
-    st.title("🛒 Admin Dashboard")
+    st.title("Admin Dashboard")
+    st.button("🔓 Logout", on_click=lambda: st.session_state.clear(), key="logout_admin", type="primary")
 
-    st.subheader("📦 Pending Orders")
-    pending_orders = db.collection("orders").where("status", "==", "Order Placed").stream()
+    tab1, tab2 = st.tabs(["📦 Pending Orders", "✅ Delivered Orders"])
 
-    pending_found = False
-    for o in pending_orders:
-        data = o.to_dict()
-        pending_found = True
-        with st.container():
-            st.markdown("---")
-            st.markdown(f"**📧 Email:** {data.get('email', '')}")
-            st.markdown(f"**💊 Medicine:** {data.get('medicine', '-') or '-'}")
-            st.markdown(f"**🎯 Age:** {data.get('entered_age', '-')}")
-            st.markdown(f"**🧬 Gender:** {data.get('entered_gender', '-')}")
-            st.markdown(f"**📝 Symptoms:** {data.get('symptoms', '-')}")
-            st.markdown(f"**🕒 Time:** {data.get('timestamp', '').strftime('%Y-%m-%d %H:%M:%S') if data.get('timestamp') else '-'}")
+    with tab1:
+        st.subheader("Pending Orders")
+        pending_orders = db.collection("orders").where("status", "in", ["Order Placed", "Out for Delivery"]).stream()
 
-            # Show image if exists
-            if data.get("image"):
-                st.markdown(
-                    f"<a href='{data['image']}' target='_blank'><img src='{data['image']}' width='100'></a>",
-                    unsafe_allow_html=True
-                )
+        for order in pending_orders:
+            data = order.to_dict()
+            st.markdown(f"### 📬 {data.get('email')}")
+            st.markdown(f"**Age:** {data.get('entered_age', 'N/A')}")
+            st.markdown(f"**Gender:** {data.get('entered_gender', 'N/A')}")
+            st.markdown(f"**Medicine:** {data.get('medicine', 'N/A')}")
+            st.markdown(f"**Symptoms:** {', '.join(data.get('symptoms', [])) if data.get('symptoms') else 'N/A'}")
+            st.markdown(f"**Date:** {data.get('timestamp').strftime('%Y-%m-%d %H:%M:%S')}")
 
-            col1, col2 = st.columns([1, 1])
-            with col1:
-                if st.button("✅ Mark Delivered", key="deliver_" + o.id):
-                    db.collection("orders").document(o.id).update({"status": "Delivered"})
-                    st.success("✅ Order marked as delivered.")
-                    time.sleep(1)
-                    st.rerun()
-            with col2:
-                if st.button("🗑️ Delete", key="delete_pending_" + o.id):
-                    db.collection("orders").document(o.id).delete()
-                    st.success("🗑️ Order deleted.")
-                    time.sleep(1)
-                    st.rerun()
+            if data.get("image") and os.path.exists(data["image"]):
+                st.image(data["image"], caption="Uploaded Image", use_column_width=True)
 
-    if not pending_found:
-        st.info("No pending orders found.")
+            current_status = data.get("status", "Order Placed")
+            new_status = st.selectbox(
+                "Update Status",
+                ["Order Placed", "Out for Delivery", "Delivered"],
+                index=["Order Placed", "Out for Delivery", "Delivered"].index(current_status),
+                key=f"status_{order.id}"
+            )
 
-    st.markdown("## ✅ Delivered Orders")
-    delivered_orders = db.collection("orders").where("status", "==", "Delivered").stream()
-
-    delivered_found = False
-    for o in delivered_orders:
-        data = o.to_dict()
-        delivered_found = True
-        with st.container():
-            st.markdown("---")
-            st.markdown(f"**📧 Email:** {data.get('email', '')}")
-            st.markdown(f"**💊 Medicine:** {data.get('medicine', '-') or '-'}")
-            st.markdown(f"**🎯 Age:** {data.get('entered_age', '-')}")
-            st.markdown(f"**🧬 Gender:** {data.get('entered_gender', '-')}")
-            st.markdown(f"**📝 Symptoms:** {data.get('symptoms', '-')}")
-            st.markdown(f"**🕒 Time:** {data.get('timestamp', '').strftime('%Y-%m-%d %H:%M:%S') if data.get('timestamp') else '-'}")
-
-            # Show image if exists
-            if data.get("image"):
-                st.markdown(
-                    f"<a href='{data['image']}' target='_blank'><img src='{data['image']}' width='100'></a>",
-                    unsafe_allow_html=True
-                )
-
-            if st.button("🗑️ Delete", key="delete_delivered_" + o.id):
-                db.collection("orders").document(o.id).delete()
-                st.success("🗑️ Delivered order deleted.")
-                time.sleep(1)
+            if st.button("✅ Update Status", key=f"update_{order.id}"):
+                db.collection("orders").document(order.id).update({"status": new_status})
+                st.success(f"Status updated to '{new_status}'")
                 st.rerun()
 
-    if not delivered_found:
-        st.info("No delivered orders found.")
+            if st.button("Delete", key="delete_pending_" + order.id):
+                db.collection("orders").document(order.id).delete()
+                st.warning("Order deleted.")
+                st.rerun()
+
+    with tab2:
+        st.subheader("Delivered Orders")
+        delivered_orders = db.collection("orders").where("status", "==", "Delivered").stream()
+
+        for order in delivered_orders:
+            data = order.to_dict()
+            st.markdown(f"### 📬 {data.get('email')}")
+            st.markdown(f"**Age:** {data.get('entered_age', 'N/A')}")
+            st.markdown(f"**Gender:** {data.get('entered_gender', 'N/A')}")
+            st.markdown(f"**Medicine:** {data.get('medicine', 'N/A')}")
+            st.markdown(f"**Symptoms:** {', '.join(data.get('symptoms', [])) if data.get('symptoms') else 'N/A'}")
+            st.markdown(f"**Delivered On:** {data.get('timestamp').strftime('%Y-%m-%d %H:%M:%S')}")
+
+            if data.get("image") and os.path.exists(data["image"]):
+                st.image(data["image"], caption="Uploaded Image", use_column_width=True)
+
+            if st.button("🗑️ Delete Order", key=f"delete_{order.id}"):
+                db.collection("orders").document(order.id).delete()
+                st.success("Order deleted successfully!")
+                st.rerun()
 
 
 # -------------------------- Router --------------------------
