@@ -9,20 +9,8 @@ import time
 # ------------- Firebase Initialization ----------------
 import json
 
-firebase_config = {
-    "type": "service_account",
-    "project_id": "react-app-eb896",
-    "private_key_id": "789fe99a47314e3f36b76869f48e394b49cd8da1",
-    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9BAQEFAASCBKgwggSkAgEAAoIBAQCJ58Rc3yRqNFYy\nOz07rF9j3Vxhd9gArKyyTOPQpM2nSJvAGhDVIHWXc25PwBh1AlSQI2lcLYaasOsN\n...[rest of key]...\n-----END PRIVATE KEY-----\n",
-    "client_email": "firebase-adminsdk-fbsvc@react-app-eb896.iam.gserviceaccount.com",
-    "client_id": "116993999232309082016",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40react-app-eb896.iam.gserviceaccount.com"
-}
-
 if not firebase_admin._apps:
+    firebase_config = st.secrets["firebase"]
     cred = credentials.Certificate(firebase_config)
     firebase_admin.initialize_app(cred)
 
