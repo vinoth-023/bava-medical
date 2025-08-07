@@ -74,9 +74,9 @@ def user_login():
         st.session_state.page = "user_register"
     if st.button("⬅️ Back"):
         st.session_state.page = "home"
-
 def user_register():
     st.subheader("Register New User")
+
     name = st.text_input("Full Name")
     age = st.number_input("Age", min_value=0)
     gender = st.selectbox("Gender", ["Male", "Female", "Other"])
@@ -84,16 +84,33 @@ def user_register():
     address = st.text_area("Address")
     email = st.text_input("Email").lower()
     password = st.text_input("Password", type="password")
+
     if st.button("Register"):
-        db.collection("users").add({
-            "name": name, "age": age, "gender": gender, "phone": phone,
-            "address": address, "email": email, "password": password
-        })
-        st.success("Registration successful! Redirecting to dashboard...")
-        time.sleep(1)
-        st.session_state.update({"user_email": email, "page": "user_dashboard"})
+        # Basic field validation
+        if not name or not age or not phone or not address or not email or not password:
+            st.warning("Please fill in all the fields.")
+        else:
+            # Check if user already exists
+            existing_user = db.collection("users").where("email", "==", email).get()
+            if existing_user:
+                st.error("Email already registered. Try logging in.")
+            else:
+                db.collection("users").add({
+                    "name": name,
+                    "age": age,
+                    "gender": gender,
+                    "phone": phone,
+                    "address": address,
+                    "email": email,
+                    "password": password
+                })
+                st.success("Registration successful! Redirecting to dashboard...")
+                time.sleep(1)
+                st.session_state.update({"user_email": email, "page": "user_dashboard"})
+
     if st.button("⬅️ Back"):
         st.session_state.page = "user_login"
+
 
 def user_dashboard():
     st.title("Welcome to Bava Medical Shop")
