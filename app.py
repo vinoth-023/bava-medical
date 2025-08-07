@@ -1,4 +1,4 @@
-# bava_medical_app.py (Updated with all requested fixes and enhancements)
+# bava_medical_app.py (Fully Updated)
 
 import streamlit as st
 import firebase_admin
@@ -44,10 +44,24 @@ def home_page():
             opacity: 0.2;
             z-index: -1;
         }
+        .top-right-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
         </style>
     """, unsafe_allow_html=True)
 
     st.markdown("<h1 style='text-align:center; color:#007bff;'>🩺 Bava Medicals</h1>", unsafe_allow_html=True)
+
+    st.markdown("""
+        <div class='top-right-button'>
+            <form action="#" method="post">
+                <button onclick="window.location.href='?page=admin_login'" style='background-color:#007bff;color:white;padding:10px 20px;border:none;border-radius:6px;'>Login as Admin</button>
+            </form>
+        </div>
+    """, unsafe_allow_html=True)
+
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         with st.container():
@@ -55,25 +69,24 @@ def home_page():
                 <div style='padding: 30px; border-radius: 12px; background-color: #f9f9f9; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>
                     <h3 style='text-align:center;'>Welcome!</h3>
             """, unsafe_allow_html=True)
-            st.button("Login as User", on_click=lambda: st.session_state.update({"page": "user_login"}))
-            st.button("Login as Admin", on_click=lambda: st.session_state.update({"page": "admin_login"}))
+            st.button("Login as User", on_click=lambda: st.session_state.update({"page": "user_login"}), use_container_width=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
 def user_login():
     st.subheader("User Login")
-    email = st.text_input("Email")
+    email = st.text_input("Email").strip().lower()
     password = st.text_input("Password", type="password")
-    if st.button("Login"):
+    if st.button("Login", key="user_login_btn", type="primary"):
         users = db.collection("users").where("email", "==", email).where("password", "==", password).get()
         if users:
             st.session_state.update({"user_email": email, "page": "user_dashboard"})
         else:
             st.error("Invalid credentials")
-    st.info("New user?")
-    if st.button("Register"):
-        st.session_state.page = "user_register"
-    if st.button("⬅️ Back"):
+    if st.button("⬅️ Back", key="user_login_back", type="secondary"):
         st.session_state.page = "home"
+    st.info("New user?")
+    if st.button("Register", key="user_register_btn", type="primary"):
+        st.session_state.page = "user_register"
 
 def user_register():
     st.subheader("Register New User")
@@ -82,9 +95,9 @@ def user_register():
     gender = st.selectbox("Gender", ["Male", "Female", "Other"])
     phone = st.text_input("Phone Number")
     address = st.text_area("Address")
-    email = st.text_input("Email")
+    email = st.text_input("Email").strip().lower()
     password = st.text_input("Password", type="password")
-    if st.button("Register"):
+    if st.button("Register", type="primary"):
         db.collection("users").add({
             "name": name, "age": age, "gender": gender, "phone": phone,
             "address": address, "email": email, "password": password
@@ -92,12 +105,12 @@ def user_register():
         st.success("Registration successful! Redirecting to dashboard...")
         time.sleep(1)
         st.session_state.update({"user_email": email, "page": "user_dashboard"})
-    if st.button("⬅️ Back"):
+    if st.button("⬅️ Back", type="secondary"):
         st.session_state.page = "user_login"
 
 def user_dashboard():
     st.title("Welcome to Bava Medical Shop")
-    st.button("🔓 Logout", on_click=lambda: st.session_state.clear())
+    st.button("🔓 Logout", on_click=lambda: st.session_state.clear(), type="primary")
 
     tab1, tab2, tab3 = st.tabs(["🆕 New Order", "📦 Track Order", "📜 Order History"])
 
@@ -109,7 +122,7 @@ def user_dashboard():
         gender = st.selectbox("Choose Gender", ["Male", "Female", "Other"])
         symptoms = st.multiselect("Select Symptoms", ["Headache", "Fever", "Cold", "Cough", "Shoulder Pain", "Leg Pain"])
 
-        if st.button("Order"):
+        if st.button("Order", type="primary"):
             image_url = save_image(image) if image else ""
             order = {
                 "email": st.session_state.user_email,
@@ -135,7 +148,7 @@ def user_dashboard():
             status_text = f"{traffic.get(status)} {status}"
             st.markdown(f"**Status:** {status_text}")
             st.markdown(f"**Date:** {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
-            if st.button("Delete", key=o.id):
+            if st.button("Delete", key=o.id, type="secondary"):
                 db.collection("orders").document(o.id).delete()
                 st.success("Order deleted.")
                 st.rerun()
@@ -146,7 +159,7 @@ def user_dashboard():
         for o in delivered_orders:
             data = o.to_dict()
             st.markdown(f"✅ **Delivered on** {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')} - {data.get('medicine', 'No medicine name')} ")
-            if st.button("Re-order", key="re_" + o.id):
+            if st.button("Re-order", key="re_" + o.id, type="primary"):
                 new_order = data.copy()
                 new_order["timestamp"] = datetime.now()
                 new_order["status"] = "Order Placed"
@@ -156,21 +169,21 @@ def user_dashboard():
 
 def admin_login():
     st.subheader("Admin Login")
-    email = st.text_input("Admin Email")
+    email = st.text_input("Admin Email").strip().lower()
     password = st.text_input("Admin Password", type="password")
-    if st.button("Login"):
+    if st.button("Login", key="admin_login_btn", type="primary"):
         if email == "admin@gmail.com" and password == "admin@123":
             st.success("Admin login successful")
             st.session_state.page = "admin_dashboard"
         else:
             st.error("Invalid admin credentials")
-    if st.button("⬅️ Back"):
+    if st.button("⬅️ Back", key="admin_login_back", type="secondary"):
         st.session_state.page = "home"
 
 def admin_dashboard():
     st.title("📢 Masha Allah - Today's Orders")
     st.markdown(f"### 🗓️ {datetime.now().strftime('%A, %d %B %Y')} | ⏰ {datetime.now().strftime('%H:%M:%S')}")
-    st.button("🔓 Logout", on_click=lambda: st.session_state.clear())
+    st.button("🔓 Logout", on_click=lambda: st.session_state.clear(), type="primary")
 
     tab1, tab2 = st.tabs(["🕓 Pending Orders", "✅ Delivered Orders"])
 
