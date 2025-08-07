@@ -188,8 +188,8 @@ def admin_dashboard():
             st.markdown(f"**Symptoms:** {', '.join(data.get('symptoms', [])) if data.get('symptoms') else 'None'}")
            if data.get("image") and os.path.exists(data["image"]):
             st.image(data["image"], width=250)
-        elif data.get("image"):
-         st.warning("Prescription image not found or inaccessible.")
+           elif data.get("image"):
+            st.warning("Prescription image not found or inaccessible.")
 
 
             new_status = st.selectbox("Update Status", ["Out for Delivery", "Delivered"], key="status_" + o.id)
