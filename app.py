@@ -147,21 +147,29 @@ def user_dashboard():
         age = st.number_input("Enter Age", min_value=0)
         gender = st.selectbox("Choose Gender", ["Male", "Female", "Other"])
         symptoms = st.multiselect("Select Symptoms", ["Headache", "Fever", "Cold", "Cough", "Shoulder Pain", "Leg Pain"])
-
-      if st.button("Place Order"):
-    # Basic validations
+if st.button("Order"):
+    # Check if Age and Gender are provided
     if not age or not gender:
-        st.warning("Please fill out both Age and Gender before placing the order.")
-    elif not medicines and image is None and not checkbox:
-        st.warning("Please enter medicine name OR upload prescription image OR tick the checkbox.")
+        st.warning("Please enter both Age and Gender before placing the order.")
+    # Check if at least one of Medicine / Image / Symptoms is provided
+    elif not medicine and image is None and not symptoms:
+        st.warning("Please enter medicine name, upload prescription image, or enter symptoms.")
     else:
-        # ✅ If all validations pass
-        # proceed to submit order
-        submit_order(...)
-        st.success("Your order has been placed successfully!")
-        time.sleep(1)
-        st.session_state.page = "user_dashboard"  # or "home"
+        image_url = save_image(image) if image else ""
+        order = {
+            "email": st.session_state.user_email,
+            "medicine": medicine,
+            "image": image_url,
+            "entered_age": age,
+            "entered_gender": gender,
+            "symptoms": symptoms,
+            "status": "Order Placed",
+            "timestamp": datetime.now()
+        }
+        db.collection("orders").add(order)
+        st.success("Order placed successfully!")
         st.rerun()
+
 
 
     with tab2:
