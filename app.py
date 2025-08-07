@@ -111,10 +111,10 @@ def user_register():
     if st.button("⬅️ Back"):
         st.session_state.page = "user_login"
 
-
 def user_dashboard():
     st.title("Welcome to Bava Medical Shop")
-    st.button("🔓 Logout", on_click=lambda: st.session_state.clear())
+    st.caption(f"Logged in as: {st.session_state.user_email}")
+    st.button("🔓 Logout", on_click=lambda: st.session_state.clear(), key="logout_user", type="primary")
 
     tab1, tab2, tab3 = st.tabs(["🆕 New Order", "📦 Track Order", "📜 Order History"])
 
@@ -149,31 +149,42 @@ def user_dashboard():
 
     with tab2:
         st.subheader("Track Your Orders")
-        orders = db.collection("orders").where("email", "==", st.session_state.user_email).where("status", "in", ["Order Placed", "Out for Delivery"]).get()
+        orders = db.collection("orders") \
+                   .where("email", "==", st.session_state.user_email) \
+                   .where("status", "in", ["Order Placed", "Out for Delivery"]) \
+                   .get()
+        if not orders:
+            st.info("No active orders found.")
         for o in orders:
             data = o.to_dict()
-            status = data["status"]
-            traffic = {"Order Placed": "🔴", "Out for Delivery": "🟡", "Delivered": "🟢"}
-            status_text = f"{traffic.get(status)} {status}"
-            st.markdown(f"**Status:** {status_text}")
+            st.markdown(f"**Status:** 🟢 {data['status']}")
             st.markdown(f"**Date:** {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
-            if st.button("Delete", key=o.id):
+            if st.button("Delete", key="delete_" + o.id):
                 db.collection("orders").document(o.id).delete()
                 st.success("Order deleted.")
                 st.rerun()
 
     with tab3:
         st.subheader("Order History")
-        delivered_orders = db.collection("orders").where("email", "==", st.session_state.user_email).where("status", "==", "Delivered").get()
+        delivered_orders = db.collection("orders") \
+                             .where("email", "==", st.session_state.user_email) \
+                             .where("status", "==", "Delivered") \
+                             .get()
+        if not delivered_orders:
+            st.info("No delivered orders yet.")
         for o in delivered_orders:
             data = o.to_dict()
-            st.markdown(f"✅ **Delivered on** {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')} - {data.get('medicine', 'No medicine name')} ")
+            st.markdown(f"✅ Delivered: {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')} - {data.get('medicine', 'N/A')}")
             if st.button("Re-order", key="re_" + o.id):
                 new_order = data.copy()
                 new_order["timestamp"] = datetime.now()
                 new_order["status"] = "Order Placed"
                 db.collection("orders").add(new_order)
                 st.success("Re-ordered successfully!")
+                st.rerun()
+            if st.button("Delete", key="delete_delivered_" + o.id):
+                db.collection("orders").document(o.id).delete()
+                st.success("Delivered order deleted.")
                 st.rerun()
 
 def admin_login():
