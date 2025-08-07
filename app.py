@@ -205,8 +205,11 @@ def admin_dashboard():
                 db.collection("orders").document(order.id).update({"status": new_status})
                 st.success(f"Status updated to '{new_status}'")
                 st.rerun()
-
-    if st.button("Delete", key="delete_pending_" + o.id): db.collection("orders").document(o.id).delete() st.warning("Order deleted.") st.rerun()
+                
+            if st.button("Delete", key="delete_pending_" + o.id):
+                db.collection("orders").document(o.id).delete()
+                st.warning("Order deleted.")
+                st.rerun()
 
     with tab2:
         st.subheader("Delivered Orders")
