@@ -1,3 +1,5 @@
+# bava_medical_app.py (Updated with all requested fixes and enhancements)
+
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -6,7 +8,7 @@ import os
 import uuid
 import time
 
-# -------------------------- Firebase Init --------------------------
+# Firebase Init
 firebase_config = dict(st.secrets["firebase"])
 if not firebase_admin._apps:
     cred = credentials.Certificate(firebase_config)
@@ -16,25 +18,6 @@ db = firestore.client()
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# -------------------------- Style --------------------------
-st.markdown("""
-    <style>
-        .stButton>button {
-            background-color: #4d94ff !important;  /* Medium blue for primary actions */
-            color: white;
-        }
-        .stButton>.red-btn>button {
-            background-color: #ff6666 !important;  /* Medium red */
-            color: white;
-        }
-        .stButton>.green-btn>button {
-            background-color: #28a745 !important;  /* Medium green */
-            color: white;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
-
 def save_image(uploaded_file):
     ext = uploaded_file.name.split(".")[-1]
     filename = f"{uuid.uuid4()}.{ext}"
@@ -43,12 +26,8 @@ def save_image(uploaded_file):
         f.write(uploaded_file.getbuffer())
     return filepath
 
-
 # -------------------------- Pages --------------------------
-from datetime import datetime
-
 def home_page():
-    # Background styling
     st.markdown("""
         <style>
         .main::before {
@@ -68,49 +47,33 @@ def home_page():
         </style>
     """, unsafe_allow_html=True)
 
-    # Centered Title & Welcome
-    st.markdown("""
-        <div style='text-align: center; margin-top: 30px;'>
-            <h1 style='color:#007bff;'>🩺 Bava Medicals</h1>
-            <h4 style='margin-top: -10px;'>Welcome to Bava Medicals - Your health, our priority!</h4>
-            <p style='color: gray;'>Today's Date: <b>{}</b></p>
-        </div>
-    """.format(datetime.now().strftime("%A, %d %B %Y")), unsafe_allow_html=True)
-
-    # Centered Buttons
+    st.markdown("<h1 style='text-align:center; color:#007bff;'>🩺 Bava Medicals</h1>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         with st.container():
             st.markdown("""
                 <div style='padding: 30px; border-radius: 12px; background-color: #f9f9f9; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>
+                    <h3 style='text-align:center;'>Welcome!</h3>
             """, unsafe_allow_html=True)
-
             st.button("Login as User", on_click=lambda: st.session_state.update({"page": "user_login"}))
             st.button("Login as Admin", on_click=lambda: st.session_state.update({"page": "admin_login"}))
-
             st.markdown("</div>", unsafe_allow_html=True)
-
 
 def user_login():
     st.subheader("User Login")
-    email = st.text_input("Email").strip().lower()
+    email = st.text_input("Email")
     password = st.text_input("Password", type="password")
-
     if st.button("Login"):
-        users = db.collection("users").where("email", "==", email).get()
+        users = db.collection("users").where("email", "==", email).where("password", "==", password).get()
         if users:
-            user = users[0].to_dict()
-            if user["password"] == password:
-                st.session_state.update({"user_email": email, "page": "user_dashboard"})
-            else:
-                st.error("Incorrect password")
+            st.session_state.update({"user_email": email, "page": "user_dashboard"})
         else:
-            st.error("User not found")
-
+            st.error("Invalid credentials")
     st.info("New user?")
-    st.button("Register", on_click=lambda: st.session_state.update({"page": "user_register"}), key="go_register")
-    st.button("⬅️ Back", on_click=lambda: st.session_state.update({"page": "home"}), key="back_user_login", type="secondary")
-
+    if st.button("Register"):
+        st.session_state.page = "user_register"
+    if st.button("⬅️ Back"):
+        st.session_state.page = "home"
 
 def user_register():
     st.subheader("Register New User")
@@ -119,9 +82,8 @@ def user_register():
     gender = st.selectbox("Gender", ["Male", "Female", "Other"])
     phone = st.text_input("Phone Number")
     address = st.text_area("Address")
-    email = st.text_input("Email").strip().lower()
+    email = st.text_input("Email")
     password = st.text_input("Password", type="password")
-
     if st.button("Register"):
         db.collection("users").add({
             "name": name, "age": age, "gender": gender, "phone": phone,
@@ -130,46 +92,39 @@ def user_register():
         st.success("Registration successful! Redirecting to dashboard...")
         time.sleep(1)
         st.session_state.update({"user_email": email, "page": "user_dashboard"})
-
-    st.button("⬅️ Back", on_click=lambda: st.session_state.update({"page": "user_login"}), key="back_register", type="secondary")
-
+    if st.button("⬅️ Back"):
+        st.session_state.page = "user_login"
 
 def user_dashboard():
     st.title("Welcome to Bava Medical Shop")
-    st.button("🔓 Logout", on_click=lambda: st.session_state.clear(), key="logout_user", type="primary")
+    st.button("🔓 Logout", on_click=lambda: st.session_state.clear())
 
     tab1, tab2, tab3 = st.tabs(["🆕 New Order", "📦 Track Order", "📜 Order History"])
 
     with tab1:
         st.subheader("Place a New Order")
-
         medicine = st.text_input("Medicine Name (optional)")
         image = st.file_uploader("Upload Medical Sheet (optional)", type=["png", "jpg", "jpeg"])
-        age = st.number_input("Enter Age", min_value=0, step=1)
-        gender = st.selectbox("Choose Gender", ["", "Male", "Female", "Other"])
+        age = st.number_input("Enter Age", min_value=0)
+        gender = st.selectbox("Choose Gender", ["Male", "Female", "Other"])
         symptoms = st.multiselect("Select Symptoms", ["Headache", "Fever", "Cold", "Cough", "Shoulder Pain", "Leg Pain"])
 
         if st.button("Order"):
-            # Validation
-            if age == 0 or gender == "":
-                st.warning("Please enter both Age and Gender before placing the order.")
-            elif not medicine.strip() and image is None and not symptoms:
-                st.warning("Please enter medicine name, upload prescription image, or select symptoms.")
-            else:
-                image_url = save_image(image) if image else ""
-                order = {
-                    "email": st.session_state.user_email,
-                    "medicine": medicine,
-                    "image": image_url,
-                    "entered_age": age,
-                    "entered_gender": gender,
-                    "symptoms": symptoms,
-                    "status": "Order Placed",
-                    "timestamp": datetime.now()
-                }
-                db.collection("orders").add(order)
-                st.success("✅ Order placed successfully!")
-                st.rerun()
+            image_url = save_image(image) if image else ""
+            order = {
+                "email": st.session_state.user_email,
+                "medicine": medicine,
+                "image": image_url,
+                "entered_age": age,
+                "entered_gender": gender,
+                "symptoms": symptoms,
+                "status": "Order Placed",
+                "timestamp": datetime.now()
+            }
+            db.collection("orders").add(order)
+            st.success("Order placed successfully!")
+            st.rerun()
+
     with tab2:
         st.subheader("Track Your Orders")
         orders = db.collection("orders").where("email", "==", st.session_state.user_email).where("status", "in", ["Order Placed", "Out for Delivery"]).get()
@@ -184,39 +139,38 @@ def user_dashboard():
                 db.collection("orders").document(o.id).delete()
                 st.success("Order deleted.")
                 st.rerun()
+
     with tab3:
         st.subheader("Order History")
         delivered_orders = db.collection("orders").where("email", "==", st.session_state.user_email).where("status", "==", "Delivered").get()
         for o in delivered_orders:
             data = o.to_dict()
-            st.markdown(f"✅ Delivered: {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')} - {data.get('medicine', 'N/A')}")
+            st.markdown(f"✅ **Delivered on** {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')} - {data.get('medicine', 'No medicine name')} ")
             if st.button("Re-order", key="re_" + o.id):
                 new_order = data.copy()
                 new_order["timestamp"] = datetime.now()
                 new_order["status"] = "Order Placed"
                 db.collection("orders").add(new_order)
                 st.success("Re-ordered successfully!")
-                st.experimental_rerun()
-
+                st.rerun()
 
 def admin_login():
     st.subheader("Admin Login")
-    email = st.text_input("Admin Email").strip().lower()
+    email = st.text_input("Admin Email")
     password = st.text_input("Admin Password", type="password")
-
     if st.button("Login"):
         if email == "admin@gmail.com" and password == "admin@123":
             st.success("Admin login successful")
             st.session_state.page = "admin_dashboard"
         else:
             st.error("Invalid admin credentials")
-
-    st.button("⬅️ Back", on_click=lambda: st.session_state.update({"page": "home"}), key="back_admin_login", type="secondary")
+    if st.button("⬅️ Back"):
+        st.session_state.page = "home"
 
 def admin_dashboard():
     st.title("📢 Masha Allah - Today's Orders")
     st.markdown(f"### 🗓️ {datetime.now().strftime('%A, %d %B %Y')} | ⏰ {datetime.now().strftime('%H:%M:%S')}")
-    st.button("🔓 Logout", on_click=lambda: st.session_state.clear(), key="logout_admin", type="primary")
+    st.button("🔓 Logout", on_click=lambda: st.session_state.clear())
 
     tab1, tab2 = st.tabs(["🕓 Pending Orders", "✅ Delivered Orders"])
 
@@ -240,11 +194,11 @@ def admin_dashboard():
             if st.button("Update", key="update_" + o.id):
                 db.collection("orders").document(o.id).update({"status": new_status})
                 st.success("Status updated.")
-                st.experimental_rerun()
+                st.rerun()
             if st.button("Delete", key="delete_pending_" + o.id):
                 db.collection("orders").document(o.id).delete()
                 st.warning("Order deleted.")
-                st.experimental_rerun()
+                st.rerun()
             st.markdown("---")
 
     with tab2:
@@ -257,15 +211,14 @@ def admin_dashboard():
             if st.button("Delete", key="delete_delivered_" + o.id):
                 db.collection("orders").document(o.id).delete()
                 st.warning("Delivered order deleted.")
-                st.experimental_rerun()
+                st.rerun()
             st.markdown("---")
-
 
 # -------------------------- Router --------------------------
 if "page" not in st.session_state:
     st.session_state.page = "home"
 
-pages = {
+page_router = {
     "home": home_page,
     "user_login": user_login,
     "user_register": user_register,
@@ -274,4 +227,4 @@ pages = {
     "admin_dashboard": admin_dashboard,
 }
 
-pages[st.session_state.page]()
+page_router[st.session_state.page]()
