@@ -168,34 +168,43 @@ def admin_login():
         st.session_state.page = "home"
 
 def admin_dashboard():
-    st.title("📢 Masha Allah - Today's Orders")
-    st.markdown(f"### 🗓️ {datetime.now().strftime('%A, %d %B %Y')} | ⏰ {datetime.now().strftime('%H:%M:%S')}")
-    st.button("🔓 Logout", on_click=lambda: st.session_state.clear())
+    st.title("👨‍⚕️ Admin Dashboard")
+    st.button("🔓 Logout", on_click=lambda: st.session_state.clear(), key="logout_admin", type="primary")
 
-    tab1, tab2 = st.tabs(["🕓 Pending Orders", "✅ Delivered Orders"])
+    st.subheader("All Orders")
+    orders = db.collection("orders").order_by("timestamp", direction=firestore.Query.DESCENDING).stream()
 
-    with tab1:
-        st.subheader("Pending Orders")
-        orders = db.collection("orders").where("status", "in", ["Order Placed", "Out for Delivery"]).get()
-        for o in orders:
-    data = o.to_dict()
-    st.markdown(f"**Email:** {data['email']}")
-    st.markdown(f"**Medicine:** {data.get('medicine', 'N/A')}")
-    st.markdown(f"**Age:** {data.get('entered_age', 'N/A')}")
-    st.markdown(f"**Gender:** {data.get('entered_gender', 'N/A')}")
-    st.markdown(f"**Symptoms:** {', '.join(data.get('symptoms', []))}")
-    
-    # ✅ Safely check image
-    if data.get("image") and os.path.exists(data["image"]):
-        st.image(data["image"], width=250)
-    elif data.get("image"):
-        st.warning("Prescription image not found or inaccessible.")
-    
-    status = st.selectbox("Update Status", ["Order Placed", "Out for Delivery", "Delivered"], index=["Order Placed", "Out for Delivery", "Delivered"].index(data["status"]), key="status_" + o.id)
-    if st.button("Update", key="update_" + o.id):
-        db.collection("orders").document(o.id).update({"status": status})
-        st.success("Order status updated.")
-        st.experimental_rerun()
+    for o in orders:
+        data = o.to_dict()
+        st.markdown("---")
+        st.markdown(f"**📧 Email:** {data.get('email', 'N/A')}")
+        st.markdown(f"**💊 Medicine:** {data.get('medicine', 'N/A')}")
+        st.markdown(f"**🎂 Age:** {data.get('entered_age', 'N/A')}")
+        st.markdown(f"**🚻 Gender:** {data.get('entered_gender', 'N/A')}")
+        st.markdown(f"**🤒 Symptoms:** {', '.join(data.get('symptoms', [])) if data.get('symptoms') else 'None'}")
+        st.markdown(f"**🕒 Timestamp:** {data.get('timestamp').strftime('%Y-%m-%d %H:%M:%S') if data.get('timestamp') else 'N/A'}")
+
+        # ✅ Show uploaded image if exists and accessible
+        if data.get("image"):
+            if os.path.exists(data["image"]):
+                st.image(data["image"], caption="Uploaded Prescription", width=250)
+            else:
+                st.warning("📄 Prescription image not found or inaccessible.")
+
+        # Status update
+        current_status = data.get("status", "Order Placed")
+        status = st.selectbox(
+            "Update Status",
+            ["Order Placed", "Out for Delivery", "Delivered"],
+            index=["Order Placed", "Out for Delivery", "Delivered"].index(current_status),
+            key="status_" + o.id
+        )
+
+        if st.button("Update", key="update_" + o.id):
+            db.collection("orders").document(o.id).update({"status": status})
+            st.success("✅ Order status updated.")
+            st.experimental_rerun()
+
 
             if st.button("Delete", key="delete_pending_" + o.id):
                 db.collection("orders").document(o.id).delete()
