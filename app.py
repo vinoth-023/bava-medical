@@ -198,6 +198,20 @@ def user_dashboard():
                 st.experimental_rerun()
 
 
+def admin_login():
+    st.subheader("Admin Login")
+    email = st.text_input("Admin Email").strip().lower()
+    password = st.text_input("Admin Password", type="password")
+
+    if st.button("Login"):
+        if email == "admin@gmail.com" and password == "admin@123":
+            st.success("Admin login successful")
+            st.session_state.page = "admin_dashboard"
+        else:
+            st.error("Invalid admin credentials")
+
+    st.button("⬅️ Back", on_click=lambda: st.session_state.update({"page": "home"}), key="back_admin_login", type="secondary")
+
 def admin_dashboard():
     st.title("📢 Masha Allah - Today's Orders")
     st.markdown(f"### 🗓️ {datetime.now().strftime('%A, %d %B %Y')} | ⏰ {datetime.now().strftime('%H:%M:%S')}")
