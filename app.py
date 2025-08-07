@@ -146,7 +146,8 @@ def user_dashboard():
                 db.collection("orders").add(order)
                 st.success("Order placed successfully!")
                 st.rerun()
-with tab2:
+
+    with tab2:
     st.subheader("Track Your Orders")
     email = st.session_state.user_email.lower()
     orders = db.collection("orders") \
