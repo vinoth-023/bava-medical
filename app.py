@@ -1,4 +1,4 @@
-# bava_medical_app.py (Updated with all requested fixes and enhancements)
+# bava_medical_app.py (Fully Updated and Fixed)
 
 import streamlit as st
 import firebase_admin
@@ -7,7 +7,7 @@ from datetime import datetime
 import os
 import uuid
 import time
- 
+
 # Firebase Init
 firebase_config = dict(st.secrets["firebase"])
 if not firebase_admin._apps:
@@ -110,20 +110,25 @@ def user_dashboard():
         symptoms = st.multiselect("Select Symptoms", ["Headache", "Fever", "Cold", "Cough", "Shoulder Pain", "Leg Pain"])
 
         if st.button("Order"):
-            image_url = save_image(image) if image else ""
-            order = {
-                "email": st.session_state.user_email,
-                "medicine": medicine,
-                "image": image_url,
-                "entered_age": age,
-                "entered_gender": gender,
-                "symptoms": symptoms,
-                "status": "Order Placed",
-                "timestamp": datetime.now()
-            }
-            db.collection("orders").add(order)
-            st.success("Order placed successfully!")
-            st.rerun()
+            if not age or not gender:
+                st.warning("Please enter both Age and Gender before placing the order.")
+            elif not medicine and image is None and not symptoms:
+                st.warning("Please enter medicine name, upload prescription image, or enter symptoms.")
+            else:
+                image_url = save_image(image) if image else ""
+                order = {
+                    "email": st.session_state.user_email,
+                    "medicine": medicine,
+                    "image": image_url,
+                    "entered_age": age,
+                    "entered_gender": gender,
+                    "symptoms": symptoms,
+                    "status": "Order Placed",
+                    "timestamp": datetime.now()
+                }
+                db.collection("orders").add(order)
+                st.success("Order placed successfully!")
+                st.rerun()
 
     with tab2:
         st.subheader("Track Your Orders")
@@ -180,50 +185,36 @@ def admin_dashboard():
         st.markdown(f"**📧 Email:** {data.get('email', 'N/A')}")
         st.markdown(f"**💊 Medicine:** {data.get('medicine', 'N/A')}")
         st.markdown(f"**🎂 Age:** {data.get('entered_age', 'N/A')}")
-        st.markdown(f"**🚻 Gender:** {data.get('entered_gender', 'N/A')}")
-        st.markdown(f"**🤒 Symptoms:** {', '.join(data.get('symptoms', [])) if data.get('symptoms') else 'None'}")
+        st.markdown(f"**🛫 Gender:** {data.get('entered_gender', 'N/A')}")
+        st.markdown(f"**🪒 Symptoms:** {', '.join(data.get('symptoms', [])) if data.get('symptoms') else 'None'}")
         st.markdown(f"**🕒 Timestamp:** {data.get('timestamp').strftime('%Y-%m-%d %H:%M:%S') if data.get('timestamp') else 'N/A'}")
 
         # ✅ Show uploaded image if exists and accessible
-        if data.get("image"):
-            if os.path.exists(data["image"]):
-                st.image(data["image"], caption="Uploaded Prescription", width=250)
-            else:
-                st.warning("📄 Prescription image not found or inaccessible.")
+        if data.get("image") and os.path.exists(data["image"]):
+            st.image(data["image"], caption="Uploaded Prescription", width=250)
 
         # Status update
-        current_status = data.get("status", "Order Placed")
+        status_options = ["Order Placed", "Out for Delivery", "Delivered"]
+        current_status = data.get("status") or "Order Placed"
+        if current_status not in status_options:
+            current_status = "Order Placed"
+
         status = st.selectbox(
             "Update Status",
-            ["Order Placed", "Out for Delivery", "Delivered"],
-            index=["Order Placed", "Out for Delivery", "Delivered"].index(current_status),
+            status_options,
+            index=status_options.index(current_status),
             key="status_" + o.id
         )
 
         if st.button("Update", key="update_" + o.id):
             db.collection("orders").document(o.id).update({"status": status})
             st.success("✅ Order status updated.")
-            st.experimental_rerun()
+            st.rerun()
 
-
-            if st.button("Delete", key="delete_pending_" + o.id):
-                db.collection("orders").document(o.id).delete()
-                st.warning("Order deleted.")
-                st.rerun()
-            st.markdown("---")
-
-    with tab2:
-        st.subheader("Delivered Orders")
-        delivered = db.collection("orders").where("status", "==", "Delivered").get()
-        for o in delivered:
-            data = o.to_dict()
-            st.markdown(f"**User:** {data.get('email')} | **Delivered:** {data.get('timestamp').strftime('%Y-%m-%d %H:%M:%S')}")
-            st.markdown(f"**Medicine:** {data.get('medicine')}")
-            if st.button("Delete", key="delete_delivered_" + o.id):
-                db.collection("orders").document(o.id).delete()
-                st.warning("Delivered order deleted.")
-                st.rerun()
-            st.markdown("---")
+        if st.button("Delete", key="delete_pending_" + o.id):
+            db.collection("orders").document(o.id).delete()
+            st.warning("Order deleted.")
+            st.rerun()
 
 # -------------------------- Router --------------------------
 if "page" not in st.session_state:
