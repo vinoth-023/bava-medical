@@ -211,67 +211,81 @@ def admin_login():
     if st.button("⬅️ Back"):
         st.session_state.page = "home"
 
-
 def admin_dashboard():
-    st.title("Admin Dashboard")
+    st.title("👨‍⚕️ Admin Dashboard")
     st.button("🔓 Logout", on_click=lambda: st.session_state.clear(), key="logout_admin", type="primary")
 
-    tab1, tab2 = st.tabs(["📦 Pending Orders", "✅ Delivered Orders"])
+    tab1, tab2 = st.tabs(["📥 Pending Orders", "✅ Delivered Orders"])
 
+    # ----- PENDING ORDERS -----
     with tab1:
         st.subheader("Pending Orders")
-        pending_orders = db.collection("orders").where("status", "in", ["Order Placed", "Out for Delivery"]).stream()
+        orders = db.collection("orders").where("status", "!=", "Delivered").get()
 
-        for order in pending_orders:
-            data = order.to_dict()
-            st.markdown(f"### 📬 {data.get('email')}")
-            st.markdown(f"**Age:** {data.get('entered_age', 'N/A')}")
-            st.markdown(f"**Gender:** {data.get('entered_gender', 'N/A')}")
-            st.markdown(f"**Medicine:** {data.get('medicine', 'N/A')}")
-            st.markdown(f"**Symptoms:** {', '.join(data.get('symptoms', [])) if data.get('symptoms') else 'N/A'}")
-            st.markdown(f"**Date:** {data.get('timestamp').strftime('%Y-%m-%d %H:%M:%S')}")
+        for o in orders:
+            data = o.to_dict()
+            col1, col2 = st.columns([3, 1])
 
-            if data.get("image") and os.path.exists(data["image"]):
-                st.image(data["image"], caption="Uploaded Image", use_column_width=True)
+            with col1:
+                st.markdown(
+                    f"""
+                    <div style="border:1px solid #ccc; border-radius:10px; padding:15px; margin-bottom:20px;">
+                        <b>Email:</b> {data.get("email", "N/A")}<br>
+                        <b>Medicine:</b> {data.get("medicine", "N/A")}<br>
+                        <b>Age:</b> {data.get("entered_age", "N/A")}<br>
+                        <b>Gender:</b> {data.get("entered_gender", "N/A")}<br>
+                        <b>Symptoms:</b> {", ".join(data.get("symptoms", [])) if data.get("symptoms") else "N/A"}<br>
+                        <b>Status:</b> {data.get("status", "N/A")}<br>
+                        <b>Date:</b> {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}
+                    </div>
+                    """, unsafe_allow_html=True
+                )
 
-            current_status = data.get("status", "Order Placed")
-            new_status = st.selectbox(
-                "Update Status",
-                ["Order Placed", "Out for Delivery", "Delivered"],
-                index=["Order Placed", "Out for Delivery", "Delivered"].index(current_status),
-                key=f"status_{order.id}"
-            )
+            with col2:
+                if data.get("image"):
+                    st.markdown(
+                        f"<a href='{data['image']}' target='_blank'><img src='{data['image']}' width='100'></a>",
+                        unsafe_allow_html=True
+                    )
+                if st.button("Mark Delivered", key="deliver_" + o.id):
+                    db.collection("orders").document(o.id).update({"status": "Delivered"})
+                    st.success("Order marked as Delivered.")
+                    st.experimental_rerun()
 
-            if st.button("✅ Update Status", key=f"update_{order.id}"):
-                db.collection("orders").document(order.id).update({"status": new_status})
-                st.success(f"Status updated to '{new_status}'")
-                st.rerun()
-
-            if st.button("Delete", key="delete_pending_" + order.id):
-                db.collection("orders").document(order.id).delete()
-                st.warning("Order deleted.")
-                st.rerun()
-
+    # ----- DELIVERED ORDERS -----
     with tab2:
         st.subheader("Delivered Orders")
-        delivered_orders = db.collection("orders").where("status", "==", "Delivered").stream()
+        delivered = db.collection("orders").where("status", "==", "Delivered").get()
 
-        for order in delivered_orders:
-            data = order.to_dict()
-            st.markdown(f"### 📬 {data.get('email')}")
-            st.markdown(f"**Age:** {data.get('entered_age', 'N/A')}")
-            st.markdown(f"**Gender:** {data.get('entered_gender', 'N/A')}")
-            st.markdown(f"**Medicine:** {data.get('medicine', 'N/A')}")
-            st.markdown(f"**Symptoms:** {', '.join(data.get('symptoms', [])) if data.get('symptoms') else 'N/A'}")
-            st.markdown(f"**Delivered On:** {data.get('timestamp').strftime('%Y-%m-%d %H:%M:%S')}")
+        for o in delivered:
+            data = o.to_dict()
+            col1, col2 = st.columns([3, 1])
 
-            if data.get("image") and os.path.exists(data["image"]):
-                st.image(data["image"], caption="Uploaded Image", use_column_width=True)
+            with col1:
+                st.markdown(
+                    f"""
+                    <div style="border:1px solid #cfcfcf; border-radius:10px; padding:15px; margin-bottom:20px; background-color:#f8f8f8;">
+                        <b>Email:</b> {data.get("email", "N/A")}<br>
+                        <b>Medicine:</b> {data.get("medicine", "N/A")}<br>
+                        <b>Age:</b> {data.get("entered_age", "N/A")}<br>
+                        <b>Gender:</b> {data.get("entered_gender", "N/A")}<br>
+                        <b>Symptoms:</b> {", ".join(data.get("symptoms", [])) if data.get("symptoms") else "N/A"}<br>
+                        <b>Status:</b> {data.get("status", "N/A")}<br>
+                        <b>Date:</b> {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}
+                    </div>
+                    """, unsafe_allow_html=True
+                )
 
-            if st.button("🗑️ Delete Order", key=f"delete_{order.id}"):
-                db.collection("orders").document(order.id).delete()
-                st.success("Order deleted successfully!")
-                st.rerun()
+            with col2:
+                if data.get("image"):
+                    st.markdown(
+                        f"<a href='{data['image']}' target='_blank'><img src='{data['image']}' width='100'></a>",
+                        unsafe_allow_html=True
+                    )
+                if st.button("Delete", key="delete_" + o.id):
+                    db.collection("orders").document(o.id).delete()
+                    st.success("Order deleted.")
+                    st.experimental_rerun()
 
 
 # -------------------------- Router --------------------------
