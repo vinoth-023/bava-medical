@@ -1,3 +1,5 @@
+# bava_medical_app.py (Updated with all requested fixes and enhancements)
+
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -6,18 +8,11 @@ import os
 import uuid
 import time
 
-# ------------- Firebase Initialization ----------------
-import json
-
-# Convert Streamlit secrets to dict
+# Firebase Init
 firebase_config = dict(st.secrets["firebase"])
-
-# Initialize Firebase only once
 if not firebase_admin._apps:
     cred = credentials.Certificate(firebase_config)
     firebase_admin.initialize_app(cred)
-
-# Now you can safely get Firestore instance
 db = firestore.client()
 
 UPLOAD_FOLDER = "uploads"
@@ -31,7 +26,7 @@ def save_image(uploaded_file):
         f.write(uploaded_file.getbuffer())
     return filepath
 
-# -------------------------- Home --------------------------
+# -------------------------- Pages --------------------------
 def home_page():
     st.markdown("""
         <style>
@@ -59,12 +54,11 @@ def home_page():
             st.markdown("""
                 <div style='padding: 30px; border-radius: 12px; background-color: #f9f9f9; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>
                     <h3 style='text-align:center;'>Welcome!</h3>
-                """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
             st.button("Login as User", on_click=lambda: st.session_state.update({"page": "user_login"}))
             st.button("Login as Admin", on_click=lambda: st.session_state.update({"page": "admin_login"}))
             st.markdown("</div>", unsafe_allow_html=True)
 
-# -------------------------- Auth --------------------------
 def user_login():
     st.subheader("User Login")
     email = st.text_input("Email")
@@ -72,13 +66,14 @@ def user_login():
     if st.button("Login"):
         users = db.collection("users").where("email", "==", email).where("password", "==", password).get()
         if users:
-            st.success("Login successful")
             st.session_state.update({"user_email": email, "page": "user_dashboard"})
         else:
             st.error("Invalid credentials")
     st.info("New user?")
     if st.button("Register"):
         st.session_state.page = "user_register"
+    if st.button("⬅️ Back"):
+        st.session_state.page = "home"
 
 def user_register():
     st.subheader("Register New User")
@@ -94,10 +89,12 @@ def user_register():
             "name": name, "age": age, "gender": gender, "phone": phone,
             "address": address, "email": email, "password": password
         })
-        st.success("Registration successful!")
+        st.success("Registration successful! Redirecting to dashboard...")
+        time.sleep(1)
+        st.session_state.update({"user_email": email, "page": "user_dashboard"})
+    if st.button("⬅️ Back"):
         st.session_state.page = "user_login"
 
-# -------------------------- User Dashboard --------------------------
 def user_dashboard():
     st.title("Welcome to Bava Medical Shop")
     st.button("🔓 Logout", on_click=lambda: st.session_state.clear())
@@ -126,19 +123,22 @@ def user_dashboard():
             }
             db.collection("orders").add(order)
             st.success("Order placed successfully!")
+            st.rerun()
 
     with tab2:
         st.subheader("Track Your Orders")
-        orders = db.collection("orders").where("email", "==", st.session_state.user_email).get()
+        orders = db.collection("orders").where("email", "==", st.session_state.user_email).where("status", "in", ["Order Placed", "Out for Delivery"]).get()
         for o in orders:
             data = o.to_dict()
-            status_color = "red" if data["status"] == "Order Placed" else "orange" if data["status"] == "Out for Delivery" else "green"
-            st.markdown(f"**Status:** <span style='color:{status_color}'>{data['status']}</span>", unsafe_allow_html=True)
+            status = data["status"]
+            traffic = {"Order Placed": "🔴", "Out for Delivery": "🟡", "Delivered": "🟢"}
+            status_text = f"{traffic.get(status)} {status}"
+            st.markdown(f"**Status:** {status_text}")
             st.markdown(f"**Date:** {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
             if st.button("Delete", key=o.id):
                 db.collection("orders").document(o.id).delete()
                 st.success("Order deleted.")
-                st.experimental_rerun()
+                st.rerun()
 
     with tab3:
         st.subheader("Order History")
@@ -146,15 +146,14 @@ def user_dashboard():
         for o in delivered_orders:
             data = o.to_dict()
             st.markdown(f"✅ **Delivered on** {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')} - {data.get('medicine', 'No medicine name')} ")
-            if st.button("Re-order", key="re_"+o.id):
+            if st.button("Re-order", key="re_" + o.id):
                 new_order = data.copy()
                 new_order["timestamp"] = datetime.now()
                 new_order["status"] = "Order Placed"
                 db.collection("orders").add(new_order)
                 st.success("Re-ordered successfully!")
-                st.experimental_rerun()
+                st.rerun()
 
-# -------------------------- Admin --------------------------
 def admin_login():
     st.subheader("Admin Login")
     email = st.text_input("Admin Email")
@@ -165,6 +164,8 @@ def admin_login():
             st.session_state.page = "admin_dashboard"
         else:
             st.error("Invalid admin credentials")
+    if st.button("⬅️ Back"):
+        st.session_state.page = "home"
 
 def admin_dashboard():
     st.title("📢 Masha Allah - Today's Orders")
@@ -185,22 +186,19 @@ def admin_dashboard():
             st.markdown(f"**Address:** {user_data.get('address')}")
             st.markdown(f"**Medicine:** {data.get('medicine')} | Age: {data.get('entered_age')} | Gender: {data.get('entered_gender')}")
             st.markdown(f"**Symptoms:** {', '.join(data.get('symptoms', [])) if data.get('symptoms') else 'None'}")
-
             if data.get("image"):
                 st.image(data["image"], width=250)
-
             st.markdown(f"**Current Status:** {data.get('status')}")
+
             new_status = st.selectbox("Update Status", ["Out for Delivery", "Delivered"], key="status_" + o.id)
             if st.button("Update", key="update_" + o.id):
                 db.collection("orders").document(o.id).update({"status": new_status})
                 st.success("Status updated.")
-                st.experimental_rerun()
-
+                st.rerun()
             if st.button("Delete", key="delete_pending_" + o.id):
                 db.collection("orders").document(o.id).delete()
                 st.warning("Order deleted.")
-                st.experimental_rerun()
-
+                st.rerun()
             st.markdown("---")
 
     with tab2:
@@ -208,23 +206,17 @@ def admin_dashboard():
         delivered = db.collection("orders").where("status", "==", "Delivered").get()
         for o in delivered:
             data = o.to_dict()
-            email = data.get("email", "N/A")
-            time = data.get("timestamp", datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
-            st.markdown(f"**User:** {email} | **Delivered:** {time}")
+            st.markdown(f"**User:** {data.get('email')} | **Delivered:** {data.get('timestamp').strftime('%Y-%m-%d %H:%M:%S')}")
             st.markdown(f"**Medicine:** {data.get('medicine')}")
             if st.button("Delete", key="delete_delivered_" + o.id):
                 db.collection("orders").document(o.id).delete()
                 st.warning("Delivered order deleted.")
-                st.experimental_rerun()
+                st.rerun()
             st.markdown("---")
 
-# -------------------------- Main Controller --------------------------
+# -------------------------- Router --------------------------
 if "page" not in st.session_state:
     st.session_state.page = "home"
-
-if st.button("Refresh", key="refresh_button"):
-    st.rerun()
-
 
 page_router = {
     "home": home_page,
