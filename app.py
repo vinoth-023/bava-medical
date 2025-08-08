@@ -295,7 +295,7 @@ def user_dashboard():
                 color = "🟢"
                 
             st.markdown(f"**Status:** {color} {status}")
-            st.markdown(f"**Date:** {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
+            st.markdown(f"**Date:** {data['timestamp']}")  # ✅ FIXED: No .strftime() here
             if st.button("Delete", key="delete_" + o.id):
                 db.collection("orders").document(o.id).delete()
                 st.success("Order deleted.")
