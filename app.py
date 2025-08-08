@@ -259,7 +259,7 @@ def user_dashboard():
                 }
                 db.collection("orders").add(order)
                 st.success("Order placed successfully!")
-                order={}
+                st.session_state.page= "user_dashboard"
                 
 
     with tab2:
