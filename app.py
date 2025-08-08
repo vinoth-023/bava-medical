@@ -96,7 +96,7 @@ def home_page():
             
 
             # Use Streamlit buttons and set session state for routing
-            if st.button("Login as User", key="user_button"):
+            if st.button("Login as User", key="user_button" class="custom-button"):
                 st.session_state.page = "user_login"
 
             if st.button("Login as Admin", key="admin_button"):
