@@ -26,6 +26,50 @@ def save_image(uploaded_file):
         f.write(uploaded_file.getbuffer())
     return filepath
 
+
+st.markdown("""
+    <style>
+    .animated-container {
+        transition: transform 0.3s ease-in-out;
+    }
+    .animated-container:hover {
+        transform: scale(1.02);
+    }
+    .styled-button {
+        background-color: #00bcd4;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+        margin-bottom: 5px;
+    }
+    .styled-button:hover {
+        background-color: #008c9e;
+        transform: scale(1.05);
+    }
+    .back-button {
+        background-color: #f44336 !important;
+    }
+    .back-button:hover {
+        background-color: #c62828 !important;
+    }
+    .register-button {
+        background-color: #4caf50 !important;
+    }
+    .register-button:hover {
+        background-color: #2e7d32 !important;
+    }
+    .admin-button {
+        background-color: #ff9800 !important;
+    }
+    .admin-button:hover {
+        background-color: #ef6c00 !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 # -------------------------- Pages --------------------------
 def home_page():
     st.markdown("""
