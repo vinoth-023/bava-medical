@@ -85,7 +85,7 @@ def home_page():
     st.markdown("""
         <div style='text-align:center;'>
             <img src='https://i.ibb.co/YRZV9rp/logo.png' width='100'/>
-            <h1 style='color:#007bff;'>🩺 <b>BaWa Medicals</b></h1>
+            <h1 style='color:#007bff;'>🩺 <b>Bawa Medicals</b></h1>
         </div>
     """, unsafe_allow_html=True)
 
