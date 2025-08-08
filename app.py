@@ -135,36 +135,23 @@ def home_page():
             st.button("Login as User", on_click=lambda: st.session_state.update({"page": "user_login"}))
             st.button("Login as Admin", on_click=lambda: st.session_state.update({"page": "admin_login"}))
             st.markdown("</div>", unsafe_allow_html=True)
+
 def user_login():
     apply_custom_styles()
-
-    st.markdown("<div class='login-container'>", unsafe_allow_html=True)
-    st.markdown("## 👤 User Login", unsafe_allow_html=True)
-
-    email = st.text_input("📧 Email", key="login_email").lower()
-    password = st.text_input("🔒 Password", type="password", key="login_password")
-
-    login_btn = st.button("🔓 Login", key="login_button")
-
-    if login_btn:
-        if not email or not password:
-            st.error("🚫 Please enter both email and password.")
+    st.subheader("User Login")
+    email = st.text_input("Email").lower()
+    password = st.text_input("Password", type="password")
+    if st.button("Login"):
+        users = db.collection("users").where("email", "==", email).where("password", "==", password).get()
+        if users:
+            st.session_state.update({"user_email": email, "page": "user_dashboard"})
         else:
-            users = db.collection("users").where("email", "==", email).where("password", "==", password).get()
-            if users:
-                st.success("✅ Login successful!")
-                st.session_state.update({"user_email": email, "page": "user_dashboard"})
-            else:
-                st.error("❌ Invalid credentials. Please try again.")
-
-    st.markdown("<div class='login-footer'>", unsafe_allow_html=True)
-    st.info("🆕 New user?")
-    if st.button("📝 Register"):
+            st.error("Invalid credentials")
+    st.info("New user?")
+    if st.button("Register"):
         st.session_state.page = "user_register"
     if st.button("⬅️ Back"):
         st.session_state.page = "home"
-    st.markdown("</div></div>", unsafe_allow_html=True)
-
 def user_register():
     apply_custom_styles()
     st.subheader("Register New User")
@@ -213,17 +200,13 @@ def user_dashboard():
 
     with tab1:
         st.subheader("Place a New Order")
-        medicine = st.text_input("Medicine Name (optional)", key="order_medicine")
-        image = st.file_uploader("Upload Medical Sheet (optional)", type=["png", "jpg", "jpeg"], key="order_image")
-        age = st.number_input("Enter Age", min_value=0, key="order_age")
-        gender = st.selectbox("Choose Gender", ["Male", "Female", "Other"], key="order_gender")
-        symptoms = st.multiselect(
-            "Select Symptoms",
-            ["Headache", "Fever", "Cold", "Cough", "Shoulder Pain", "Leg Pain"],
-            key="order_symptoms"
-        )
+        medicine = st.text_input("Medicine Name (optional)")
+        image = st.file_uploader("Upload Medical Sheet (optional)", type=["png", "jpg", "jpeg"])
+        age = st.number_input("Enter Age", min_value=0)
+        gender = st.selectbox("Choose Gender", ["Male", "Female", "Other"])
+        symptoms = st.multiselect("Select Symptoms", ["Headache", "Fever", "Cold", "Cough", "Shoulder Pain", "Leg Pain"])
 
-        if st.button("Order", key="place_order_btn"):
+        if st.button("Order"):
             if not age or not gender:
                 st.warning("Please enter both Age and Gender before placing the order.")
             elif not medicine and image is None and not symptoms:
@@ -241,21 +224,17 @@ def user_dashboard():
                     "timestamp": datetime.now()
                 }
                 db.collection("orders").add(order)
-                st.success("✅ Order placed successfully!")
-                  if st.session_state.order_success:
-                      st.success("✅ Order placed successfully!")
-                      st.session_state.order_success = False
-
+                st.success("Order placed successfully!")
                 st.rerun()
 
     with tab2:
         st.subheader("Track Your Orders")
         email = st.session_state.user_email.lower()
         orders = db.collection("orders") \
-                   .where("email", "==", email) \
-                   .where("status", "in", ["Order Placed", "Out for Delivery"]) \
-                   .get()
-
+               .where("email", "==", email) \
+               .where("status", "in", ["Order Placed", "Out for Delivery"]) \
+               .get()
+        
         if not orders:
             st.info("No active orders found.")
         for o in orders:
@@ -267,13 +246,14 @@ def user_dashboard():
                 color = "🟡"
             else:
                 color = "🟢"
-
+                
             st.markdown(f"**Status:** {color} {status}")
             st.markdown(f"**Date:** {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
             if st.button("Delete", key="delete_" + o.id):
                 db.collection("orders").document(o.id).delete()
                 st.success("Order deleted.")
                 st.rerun()
+
 
     with tab3:
         st.subheader("Order History")
