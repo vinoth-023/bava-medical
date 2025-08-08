@@ -7,6 +7,8 @@ from datetime import datetime
 import os
 import uuid
 import time
+import pytz
+INDIA_TZ = pytz.timezone("Asia/Kolkata")
 
 # Firebase Init
 firebase_config = dict(st.secrets["firebase"])
@@ -255,11 +257,12 @@ def user_dashboard():
                     "entered_gender": gender,
                     "symptoms": symptoms,
                     "status": "Order Placed",
-                    "timestamp": datetime.now()
+                    "timestamp": datetime.now(INDIA_TZ)
+
                 }
                 db.collection("orders").add(order)
                 st.success("Order placed successfully!")
-                st.session_state.update({"user_email": email, "page": "user_dashboard"})
+                st.session_state.user_tab = 1
                 st.rerun()
                 
 
