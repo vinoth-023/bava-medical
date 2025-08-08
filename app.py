@@ -39,15 +39,9 @@ def apply_custom_styles():
         #MainMenu {visibility: hidden;}
         header {visibility: hidden;}
         footer {visibility:hidden;}
-
-        def apply_custom_styles():
-    st.markdown("""
-        <style>
-        /* Hide old footer */
-        footer {visibility: hidden;}
-
         [data-testid="stStatusWidget"] {display: none !important;}
         [data-testid="stAppViewBlockContainer"] + div {display: none !important;}
+
 
         /* Background and fonts */
         body, .main, .block-container {
