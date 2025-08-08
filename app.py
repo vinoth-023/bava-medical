@@ -231,7 +231,6 @@ def user_register():
     if st.button("⬅️ Back"):
         st.session_state.page = "user_login"
         st.rerun()
-
 def user_dashboard():
     apply_custom_styles()
     st.title("Welcome to Bava Medical Shop")
@@ -240,24 +239,33 @@ def user_dashboard():
 
     tab1, tab2, tab3 = st.tabs(["🆕 New Order", "📦 Track Order", "📜 Order History"])
 
+    # TAB 1: New Order
     with tab1:
         st.subheader("Place a New Order")
+
         medicine = st.text_input("Medicine Name (optional)")
         image = st.file_uploader("Upload Medical Sheet (optional)", type=["png", "jpg", "jpeg"])
         age = st.number_input("Enter Age", min_value=0)
         gender = st.selectbox("Choose Gender", ["Male", "Female", "Other"])
         symptoms = st.multiselect("Select Symptoms", ["Headache", "Fever", "Cold", "Cough", "Shoulder Pain", "Leg Pain"])
 
-        if st.button("Order"):
+        confirm_order = st.checkbox("✅ I confirm the order details are correct")
+
+        if st.button("Place Order"):
             if not age or not gender:
                 st.warning("Please enter both Age and Gender before placing the order.")
             elif not medicine and image is None and not symptoms:
                 st.warning("Please enter medicine name, upload prescription image, or enter symptoms.")
+            elif not confirm_order:
+                st.warning("Please confirm the order before submitting.")
             else:
                 image_url = save_image(image) if image else ""
+
+                # Correct IST time handling
                 ist = pytz.timezone('Asia/Kolkata')
                 now = datetime.now(ist)
-                order_time = now.strftime("%d-%m-%Y %H:%M:%S")
+                order_time = now.strftime("%d-%m-%Y %I:%M:%S %p")  # Example: 08-08-2025 07:40:00 PM
+
                 order = {
                     "email": st.session_state.user_email,
                     "medicine": medicine,
@@ -267,11 +275,12 @@ def user_dashboard():
                     "symptoms": symptoms,
                     "status": "Order Placed",
                     "timestamp": order_time
-
                 }
+
                 db.collection("orders").add(order)
-                st.success("Order placed successfully!")
-                st.session_state.user_tab = 2
+                st.success("✅ Order placed successfully!")
+                st.session_state.user_tab = 2  # Redirect to "Track Order" tab
+
                 
 
     with tab2:
