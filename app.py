@@ -247,6 +247,7 @@ def user_dashboard():
         age = st.number_input("Enter Age", min_value=0)
         gender = st.selectbox("Choose Gender", ["Male", "Female", "Other"])
         symptoms = st.multiselect("Select Symptoms", ["Headache", "Fever", "Cold", "Cough", "Shoulder Pain", "Leg Pain"])
+        days_required = st.number_input("How many days do you need the medicine for?", min_value=1)
 
         if st.button("Order"):
             if not age or not gender:
@@ -265,13 +266,14 @@ def user_dashboard():
                     "entered_age": age,
                     "entered_gender": gender,
                     "symptoms": symptoms,
+                    "days_required": days_required,
                     "status": "Order Placed",
                     "timestamp": order_time
 
                 }
                 db.collection("orders").add(order)
                 st.success("Order placed successfully!")
-                st.session_state.user_tab = 2
+                st.session_state.user_dashboard_tab = 2
                 
 
     with tab2:
