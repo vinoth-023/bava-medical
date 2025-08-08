@@ -25,7 +25,6 @@ db = firestore.client()
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-import streamlit as st
 
 hide_footer = """
 <style>
@@ -44,27 +43,6 @@ div[role="button"][tabindex="0"] {display: none !important;}
 """
 
 st.markdown(hide_footer, unsafe_allow_html=True)
-def apply_kiosk_mode():
-    st.markdown("""
-        <style>
-        /* Hide main menu, GitHub link, and edit pencil */
-        #MainMenu {visibility: hidden;}
-        header {visibility: hidden;}
-
-        /* Hide footer and "Manage app" button */
-        footer {visibility: hidden;}
-        [data-testid="stStatusWidget"] {display: none !important;}
-        [data-testid="stAppViewBlockContainer"] + div {display: none !important;}
-
-        /* Optional: Remove padding for full-width look */
-        .block-container {
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
-apply_kiosk_mode()
 
 def save_image(uploaded_file):
     ext = uploaded_file.name.split(".")[-1]
