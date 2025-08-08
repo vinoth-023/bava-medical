@@ -27,7 +27,36 @@ def save_image(uploaded_file):
         f.write(uploaded_file.getbuffer())
     return filepath
 
+
+
+def set_bg_from_local(image_path):
+    with open(image_path, "rb") as img_file:
+        encoded = base64.b64encode(img_file.read()).decode()
+        st.markdown(
+            f"""
+            <style>
+            .main::before {{
+                content: "";
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background-image: url("data:image/jpeg;base64,{encoded}");
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-position: center;
+                opacity: 0.2;
+                z-index: -1;
+            }}
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
+
 def home_page():
+    set_bg_from_local("medical-bg.jpg")  
     st.markdown("""
         <style>
         .main::before {
