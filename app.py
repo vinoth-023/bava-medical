@@ -85,14 +85,13 @@ def home_page():
     st.markdown("""
         <div style='text-align:center;'>
             <img src='https://i.ibb.co/YRZV9rp/logo.png' width='100'/>
-            <h1 style='color:#007bff;'>🩺 <b>Bava Medicals</b></h1>
+            <h1 style='color:#007bff;'>🩺 <b>BaWa Medicals</b></h1>
         </div>
     """, unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         with st.container():
-            st.markdown("<div class='custom-box'>", unsafe_allow_html=True)
 
             st.markdown("<h3 style='color:#00695c;'>Welcome!</h3>", unsafe_allow_html=True)
 
