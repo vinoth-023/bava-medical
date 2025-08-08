@@ -46,7 +46,7 @@ def home_page():
         }
         </style>
     """, unsafe_allow_html=True)
-set_bg_from_local("medical-bg.jpg")
+
 
     st.markdown("<h1 style='text-align:center; color:#007bff;'>🩺 Bawa Medicals</h1>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 2, 1])
@@ -60,7 +60,7 @@ set_bg_from_local("medical-bg.jpg")
             st.button("Login as Admin", on_click=lambda: st.session_state.update({"page": "admin_login"}))
             st.markdown("</div>", unsafe_allow_html=True)
 
-
+set_bg_from_local("medical-bg.jpg")
 def user_login():
     st.subheader("User Login")
 
