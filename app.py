@@ -1,37 +1,5 @@
-# bava_medical_app.py (Fully Updated and Fixed)
-import streamlit as st
 
-st.set_page_config(page_title="Bawa Medical", page_icon="🩺")
 
-disable_manage_app_mobile_desktop = """
-<style>
-/* Disable clicking on both desktop and mobile versions */
-a[href*="streamlit.io/cloud"],
-button[title="Manage app"] {
-    pointer-events: none !important;
-    cursor: default !important;
-    color: inherit !important;
-    text-decoration: none !important;
-}
-
-/* Fade it out so it's less noticeable */
-a[href*="streamlit.io/cloud"] p,
-button[title="Manage app"] {
-    opacity: 0.4 !important;
-}
-
-/* Remove any hover effect */
-a[href*="streamlit.io/cloud"]:hover,
-button[title="Manage app"]:hover {
-    background: none !important;
-}
-</style>
-"""
-
-st.markdown(disable_manage_app_mobile_desktop, unsafe_allow_html=True)
-
-st.title("Bawa Medical")
-st.write("Now the Manage App button is inactive on both desktop and mobile.")
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -59,6 +27,7 @@ UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
+
 disable_manage_app_mobile_desktop = """
 <style>
 /* Disable clicking on both desktop and mobile versions */
@@ -85,6 +54,7 @@ button[title="Manage app"]:hover {
 """
 
 st.markdown(disable_manage_app_mobile_desktop, unsafe_allow_html=True)
+
 
 def save_image(uploaded_file):
     ext = uploaded_file.name.split(".")[-1]
