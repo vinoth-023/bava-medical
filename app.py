@@ -86,7 +86,7 @@ def home_page():
         <div style='text-align:center;'>
             <img src='https://i.ibb.co/YRZV9rp/logo.png' width='100'/>
             <h1 style='color:#007bff;'>🩺 <b>Bawa Medicals</b></h1>
-            st.markdown("<h3 style='color:#00695c;'>Welcome!</h3>", unsafe_allow_html=True)
+            <h3 style='color:#00695c;'>Welcome!</h3>
         </div>
     """, unsafe_allow_html=True)
 
