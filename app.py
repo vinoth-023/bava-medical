@@ -398,7 +398,7 @@ def admin_dashboard():
             st.markdown(f"**Medicine:** {data.get('medicine', 'N/A')}")
             st.markdown(f"**no.of.Days:** {data.get('days_required', 'N/A')}")
             st.markdown(f"**Symptoms:** {', '.join(data.get('symptoms', [])) if data.get('symptoms') else 'N/A'}")
-            st.markdown(f"**Delivered On:** {data.get('timestamp').strftime('%Y-%m-%d %H:%M:%S')}")
+            st.markdown(f"**Date:** {data['timestamp']}")
 
             if data.get("image") and os.path.exists(data["image"]):
                 st.image(data["image"], caption="Uploaded Image", use_column_width=True)
