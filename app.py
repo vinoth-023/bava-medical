@@ -27,6 +27,24 @@ UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
+disable_manage_app = """
+<style>
+/* Remove link styles so it looks like plain text */
+a[href*="streamlit.io/cloud"] {
+    pointer-events: none !important;  /* Disable clicking */
+    cursor: default !important;       /* No hand icon */
+    color: inherit !important;        /* Normal text color */
+    text-decoration: none !important; /* Remove underline */
+}
+
+/* Optional: make it more faded so users ignore it */
+a[href*="streamlit.io/cloud"] p {
+    opacity: 0.5 !important;
+}
+</style>
+"""
+
+st.markdown(disable_manage_app, unsafe_allow_html=True)
 def save_image(uploaded_file):
     ext = uploaded_file.name.split(".")[-1]
     filename = f"{uuid.uuid4()}.{ext}"
