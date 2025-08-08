@@ -135,23 +135,36 @@ def home_page():
             st.button("Login as User", on_click=lambda: st.session_state.update({"page": "user_login"}))
             st.button("Login as Admin", on_click=lambda: st.session_state.update({"page": "admin_login"}))
             st.markdown("</div>", unsafe_allow_html=True)
-
 def user_login():
     apply_custom_styles()
-    st.subheader("User Login")
-    email = st.text_input("Email").lower()
-    password = st.text_input("Password", type="password")
-    if st.button("Login"):
-        users = db.collection("users").where("email", "==", email).where("password", "==", password).get()
-        if users:
-            st.session_state.update({"user_email": email, "page": "user_dashboard"})
+
+    st.markdown("<div class='login-container'>", unsafe_allow_html=True)
+    st.markdown("## 👤 User Login", unsafe_allow_html=True)
+
+    email = st.text_input("📧 Email", key="login_email").lower()
+    password = st.text_input("🔒 Password", type="password", key="login_password")
+
+    login_btn = st.button("🔓 Login", key="login_button")
+
+    if login_btn:
+        if not email or not password:
+            st.error("🚫 Please enter both email and password.")
         else:
-            st.error("Invalid credentials")
-    st.info("New user?")
-    if st.button("Register"):
+            users = db.collection("users").where("email", "==", email).where("password", "==", password).get()
+            if users:
+                st.success("✅ Login successful!")
+                st.session_state.update({"user_email": email, "page": "user_dashboard"})
+            else:
+                st.error("❌ Invalid credentials. Please try again.")
+
+    st.markdown("<div class='login-footer'>", unsafe_allow_html=True)
+    st.info("🆕 New user?")
+    if st.button("📝 Register"):
         st.session_state.page = "user_register"
     if st.button("⬅️ Back"):
         st.session_state.page = "home"
+    st.markdown("</div></div>", unsafe_allow_html=True)
+
 def user_register():
     apply_custom_styles()
     st.subheader("Register New User")
@@ -200,32 +213,41 @@ def user_dashboard():
 
     with tab1:
         st.subheader("Place a New Order")
-        medicine = st.text_input("Medicine Name (optional)")
-        image = st.file_uploader("Upload Medical Sheet (optional)", type=["png", "jpg", "jpeg"])
-        age = st.number_input("Enter Age", min_value=0)
-        gender = st.selectbox("Choose Gender", ["Male", "Female", "Other"])
-        symptoms = st.multiselect("Select Symptoms", ["Headache", "Fever", "Cold", "Cough", "Shoulder Pain", "Leg Pain"])
-
-        if st.button("Order"):
+        medicine = st.text_input("Medicine Name (optional)", key="order_medicine")
+        image = st.file_uploader("Upload Medical Sheet (optional)", type=["png", "jpg", "jpeg"], key="order_image")
+        age = st.number_input("Enter Age", min_value=0, key="order_age")
+        gender = st.selectbox("Choose Gender", ["Male", "Female", "Other"], key="order_gender")
+        symptoms = st.multiselect("Select Symptoms", ["Headache", "Fever", "Cold", "Cough", "Shoulder Pain", "Leg Pain"], key="order_symptoms")
+        
+        if st.button("Order", key="place_order_btn"):
             if not age or not gender:
                 st.warning("Please enter both Age and Gender before placing the order.")
             elif not medicine and image is None and not symptoms:
                 st.warning("Please enter medicine name, upload prescription image, or enter symptoms.")
-            else:
-                image_url = save_image(image) if image else ""
-                order = {
-                    "email": st.session_state.user_email,
-                    "medicine": medicine,
-                    "image": image_url,
-                    "entered_age": age,
-                    "entered_gender": gender,
-                    "symptoms": symptoms,
-                    "status": "Order Placed",
-                    "timestamp": datetime.now()
-                }
-                db.collection("orders").add(order)
-                st.success("Order placed successfully!")
-                st.rerun()
+        else:
+            image_url = save_image(image) if image else ""
+            order = {
+                "email": st.session_state.user_email,
+                "medicine": medicine,
+                "image": image_url,
+                "entered_age": age,
+                "entered_gender": gender,
+                "symptoms": symptoms,
+                "status": "Order Placed",
+                "timestamp": datetime.now()
+            }
+            db.collection("orders").add(order)
+            st.success("✅ Order placed successfully!")
+
+            # ⬅️ Clear the input fields manually
+            st.session_state.order_medicine = ""
+            st.session_state.order_image = None
+            st.session_state.order_age = 0
+            st.session_state.order_gender = "Male"
+            st.session_state.order_symptoms = []
+
+            st.rerun()  # Optional – in case you want to refresh the tab view
+
 
     with tab2:
         st.subheader("Track Your Orders")
