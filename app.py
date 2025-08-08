@@ -61,19 +61,22 @@ def home_page():
 
 def user_login():
     st.subheader("User Login")
+
     email = st.text_input("Email").lower()
     password = st.text_input("Password", type="password")
 
-    if st.button("Login"):
-        # 🔐 Check that both fields are filled
+    # Show warning only if user tries to click Login without entering both fields
+    login_clicked = st.button("Login")
+
+    if login_clicked:
         if not email or not password:
-            st.warning("Please enter both email and password.")
+            st.warning("⚠️ Please enter both email and password to continue.")
         else:
             users = db.collection("users").where("email", "==", email).where("password", "==", password).get()
             if users:
                 st.session_state.update({"user_email": email, "page": "user_dashboard"})
             else:
-                st.error("Invalid credentials")
+                st.error("❌ Invalid credentials")
 
     st.info("New user?")
     if st.button("Register"):
