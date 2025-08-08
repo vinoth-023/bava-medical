@@ -25,7 +25,6 @@ def save_image(uploaded_file):
     with open(filepath, "wb") as f:
         f.write(uploaded_file.getbuffer())
     return filepath
-
 def apply_custom_styles():
     st.markdown("""
         <style>
@@ -36,7 +35,7 @@ def apply_custom_styles():
             color: #333;
         }
 
-        /* Main heading */
+        /* Headings */
         h1, h2, h3 {
             color: #007bff;
             text-align: center;
@@ -67,11 +66,34 @@ def apply_custom_styles():
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
         }
-
         .stButton > button:hover {
             background-color: #0056b3;
             transform: scale(1.05);
             box-shadow: 0 6px 18px rgba(0, 86, 179, 0.3);
+        }
+
+        /* Input boxes: text, number, etc. */
+        input[type="text"], input[type="number"], textarea {
+            border: 1.5px solid #007bff !important;
+            border-radius: 6px !important;
+            padding: 8px 12px !important;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.1) !important;
+            transition: all 0.3s ease-in-out;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
+            border-color: #0056b3 !important;
+            box-shadow: 0 6px 18px rgba(0, 86, 179, 0.2) !important;
+        }
+
+        /* Select, multiselect, file uploader (indirect styling via class) */
+        .stSelectbox, .stMultiSelect, .stFileUploader, .stNumberInput {
+            background-color: white;
+            border: 1.5px solid #007bff;
+            border-radius: 6px;
+            padding: 6px;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.1);
+            transition: all 0.3s ease-in-out;
         }
 
         /* Image zoom */
@@ -86,9 +108,7 @@ def apply_custom_styles():
             transition: 0.3s ease-in-out;
         }
 
-        /* Tab headers (color change on hover not natively supported in streamlit tabs) */
-
-        /* Animations */
+        /* Animation */
         @keyframes fadeInDown {
             from {
                 opacity: 0;
