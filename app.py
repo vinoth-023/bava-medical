@@ -249,38 +249,52 @@ def user_dashboard():
         gender = st.selectbox("Choose Gender", ["Male", "Female", "Other"])
         symptoms = st.multiselect("Select Symptoms", ["Headache", "Fever", "Cold", "Cough", "Shoulder Pain", "Leg Pain"])
 
-        confirm_order = st.checkbox("✅ I confirm the order details are correct")
+        if st.button("📝 Confirm Order"):
+        if not age or not gender:
+            st.warning("Please enter both Age and Gender before placing the order.")
+        elif not medicine and image is None and not symptoms:
+            st.warning("Please enter medicine name, upload prescription image, or enter symptoms.")
+        else:
+            st.session_state.show_modal = True  # trigger modal flag
 
-        if st.button("Place Order"):
-            if not age or not gender:
-                st.warning("Please enter both Age and Gender before placing the order.")
-            elif not medicine and image is None and not symptoms:
-                st.warning("Please enter medicine name, upload prescription image, or enter symptoms.")
-            elif not confirm_order:
-                st.warning("Please confirm the order before submitting.")
-            else:
-                image_url = save_image(image) if image else ""
+    # Show the modal if triggered
+    if st.session_state.get("show_modal"):
+        with st.modal("Confirm Your Order", key="order_modal"):
+            st.markdown("### Are you sure you want to place this order?")
+            st.write(f"**Medicine:** {medicine or 'Not entered'}")
+            st.write(f"**Age:** {age}")
+            st.write(f"**Gender:** {gender}")
+            st.write(f"**Symptoms:** {', '.join(symptoms) if symptoms else 'None'}")
+            if image:
+                st.image(image, caption="Uploaded Prescription", use_column_width=True)
 
-                # Correct IST time handling
-                ist = pytz.timezone('Asia/Kolkata')
-                now = datetime.now(ist)
-                order_time = now.strftime("%d-%m-%Y %I:%M:%S %p")  # Example: 08-08-2025 07:40:00 PM
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("✅ Yes, Place Order"):
+                    image_url = save_image(image) if image else ""
+                    ist = pytz.timezone('Asia/Kolkata')
+                    now = datetime.now(ist)
+                    order_time = now.strftime("%d-%m-%Y %H:%M:%S")
 
-                order = {
-                    "email": st.session_state.user_email,
-                    "medicine": medicine,
-                    "image": image_url,
-                    "entered_age": age,
-                    "entered_gender": gender,
-                    "symptoms": symptoms,
-                    "status": "Order Placed",
-                    "timestamp": order_time
-                }
+                    order = {
+                        "email": st.session_state.user_email,
+                        "medicine": medicine,
+                        "image": image_url,
+                        "entered_age": age,
+                        "entered_gender": gender,
+                        "symptoms": symptoms,
+                        "status": "Order Placed",
+                        "timestamp": order_time
+                    }
 
-                db.collection("orders").add(order)
-                st.success("✅ Order placed successfully!")
-                st.session_state.user_tab = 2  # Redirect to "Track Order" tab
+                    db.collection("orders").add(order)
+                    st.success("✅ Order placed successfully!")
+                    st.session_state.show_modal = False
+                    st.session_state.user_tab = 2
 
+            with col2:
+                if st.button("❌ Cancel"):
+                    st.session_state.show_modal = False
                 
 
     with tab2:
