@@ -118,19 +118,20 @@ def apply_custom_styles():
             box-shadow: 0 6px 18px rgba(0, 86, 179, 0.3);
         }
 
-        /* Input boxes: text, number, etc. */
-        input[type="text"], input[type="number"], textarea {
-            border: 1.5px solid #007bff !important;
-            border-radius: 6px !important;
-            padding: 8px 12px !important;
-            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.1) !important;
-            transition: all 0.3s ease-in-out;
-        }
+       /* Input boxes: text, number, password, etc. */
+input[type="text"], input[type="number"], input[type="password"], textarea {
+    border: 1.5px solid #007bff !important;
+    border-radius: 6px !important;
+    padding: 8px 12px !important;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.1) !important;
+    transition: all 0.3s ease-in-out;
+}
 
-        input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
-            border-color: #0056b3 !important;
-            box-shadow: 0 6px 18px rgba(0, 86, 179, 0.2) !important;
-        }
+input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus, textarea:focus {
+    border-color: #0056b3 !important;
+    box-shadow: 0 6px 18px rgba(0, 86, 179, 0.2) !important;
+}
+
 
         /* Select, multiselect, file uploader (indirect styling via class) */
         .stSelectbox, .stMultiSelect, .stFileUploader, .stNumberInput {
