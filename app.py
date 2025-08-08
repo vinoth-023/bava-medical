@@ -182,6 +182,7 @@ def user_login():
 
     if st.button("⬅️ Back"):
         st.session_state.page = "home"
+        st.rerun()
 
 def user_register():
     apply_custom_styles()
@@ -217,9 +218,11 @@ def user_register():
                 st.success("Registration successful! Redirecting to dashboard...")
                 time.sleep(1)
                 st.session_state.update({"user_email": email, "page": "user_dashboard"})
+                st.rerun()
 
     if st.button("⬅️ Back"):
         st.session_state.page = "user_login"
+        st.rerun()
 
 def user_dashboard():
     apply_custom_styles()
@@ -318,10 +321,12 @@ def admin_login():
         if email == "admin@gmail.com" and password == "admin@123":
             st.success("Admin login successful")
             st.session_state.page = "admin_dashboard"
+            st.rerun()
         else:
             st.error("Invalid admin credentials")
     if st.button("⬅️ Back"):
         st.session_state.page = "home"
+        st.rerun()
 
 
 def admin_dashboard():
