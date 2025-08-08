@@ -31,6 +31,7 @@ def save_image(uploaded_file):
 def home_page():
     st.markdown("""
         <style>
+        /* Background Image */
         .main::before {
             content: "";
             position: fixed;
@@ -42,23 +43,76 @@ def home_page():
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
-            opacity: 0.2;
+            opacity: 0.15;
             z-index: -1;
+        }
+
+        /* Card Container */
+        .card {
+            padding: 30px;
+            border-radius: 16px;
+            background: linear-gradient(to right, #e0f7fa, #ffffff);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+        }
+
+        /* Button Styles */
+        .custom-button {
+            background-color: #00bcd4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 10px auto;
+            font-size: 18px;
+            font-weight: bold;
+            width: 100%;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .custom-button:hover {
+            background-color: #0097a7;
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
         }
         </style>
     """, unsafe_allow_html=True)
 
     st.markdown("<h1 style='text-align:center; color:#007bff;'>🩺 Bava Medicals</h1>", unsafe_allow_html=True)
+
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        with st.container():
-            st.markdown("""
-                <div style='padding: 30px; border-radius: 12px; background-color: #f9f9f9; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>
-                    <h3 style='text-align:center;'>Welcome!</h3>
-            """, unsafe_allow_html=True)
-            st.button("Login as User", on_click=lambda: st.session_state.update({"page": "user_login"}))
-            st.button("Login as Admin", on_click=lambda: st.session_state.update({"page": "admin_login"}))
-            st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align:center; color:#00796b;'>Welcome!</h3>", unsafe_allow_html=True)
+
+        # Placeholder buttons (actual buttons are styled below via JS)
+        login_user = st.button("Login as User", key="login_user_home")
+        login_admin = st.button("Login as Admin", key="login_admin_home")
+
+        if login_user:
+            st.session_state.page = "user_login"
+        elif login_admin:
+            st.session_state.page = "admin_login"
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        # Inject JS-based styling
+        st.markdown("""
+            <script>
+            const buttons = window.parent.document.querySelectorAll('button');
+            buttons.forEach(btn => {
+                if (btn.innerText === "Login as User" || btn.innerText === "Login as Admin") {
+                    btn.classList.add("custom-button");
+                }
+            });
+            </script>
+        """, unsafe_allow_html=True)
+
 
 def user_login():
     st.subheader("User Login")
@@ -157,7 +211,6 @@ def user_dashboard():
                 }
                 db.collection("orders").add(order)
                 st.success("Order placed successfully!")
-                st.rerun()
 
     with tab2:
         st.subheader("Track Your Orders")
