@@ -26,8 +26,85 @@ def save_image(uploaded_file):
         f.write(uploaded_file.getbuffer())
     return filepath
 
+def apply_custom_styles():
+    st.markdown("""
+        <style>
+        /* Background and fonts */
+        body, .main, .block-container {
+            background-color: #f0f4f8;
+            font-family: 'Segoe UI', sans-serif;
+            color: #333;
+        }
+
+        /* Main heading */
+        h1, h2, h3 {
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 0.5em;
+            animation: fadeInDown 1s ease-in-out;
+        }
+
+        /* Card container */
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: scale(1.02);
+        }
+
+        /* Buttons */
+        .stButton > button {
+            background-color: #007bff;
+            color: white;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+        }
+
+        .stButton > button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+            box-shadow: 0 6px 18px rgba(0, 86, 179, 0.3);
+        }
+
+        /* Image zoom */
+        img:hover {
+            transform: scale(1.05);
+            transition: 0.3s ease-in-out;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Info boxes */
+        .stAlert, .stMarkdown {
+            transition: 0.3s ease-in-out;
+        }
+
+        /* Tab headers (color change on hover not natively supported in streamlit tabs) */
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
 # -------------------------- Pages --------------------------
 def home_page():
+    apply_custom_styles()
     st.markdown("""
         <style>
         .main::before {
@@ -60,6 +137,7 @@ def home_page():
             st.markdown("</div>", unsafe_allow_html=True)
 
 def user_login():
+    apply_custom_styles()
     st.subheader("User Login")
     email = st.text_input("Email").lower()
     password = st.text_input("Password", type="password")
@@ -75,6 +153,7 @@ def user_login():
     if st.button("⬅️ Back"):
         st.session_state.page = "home"
 def user_register():
+    apply_custom_styles()
     st.subheader("Register New User")
 
     name = st.text_input("Full Name")
@@ -112,6 +191,7 @@ def user_register():
         st.session_state.page = "user_login"
 
 def user_dashboard():
+    apply_custom_styles()
     st.title("Welcome to Bava Medical Shop")
     st.caption(f"Logged in as: {st.session_state.user_email}")
     st.button("🔓 Logout", on_click=lambda: st.session_state.clear(), key="logout_user", type="primary")
@@ -199,6 +279,7 @@ def user_dashboard():
                 st.rerun()
 
 def admin_login():
+    apply_custom_styles()
     st.subheader("Admin Login")
     email = st.text_input("Admin Email").lower()
     password = st.text_input("Admin Password", type="password")
@@ -213,6 +294,7 @@ def admin_login():
 
 
 def admin_dashboard():
+    apply_custom_styles()
     st.title("Admin Dashboard")
     st.button("🔓 Logout", on_click=lambda: st.session_state.clear(), key="logout_admin", type="primary")
 
