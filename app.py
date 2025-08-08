@@ -26,7 +26,39 @@ db = firestore.client()
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+import streamlit as st
 
+st.set_page_config(page_title="Bawa Medical", page_icon="🩺")
+
+disable_manage_app_mobile_desktop = """
+<style>
+/* Disable clicking on both desktop and mobile versions */
+a[href*="streamlit.io/cloud"],
+button[title="Manage app"] {
+    pointer-events: none !important;
+    cursor: default !important;
+    color: inherit !important;
+    text-decoration: none !important;
+}
+
+/* Fade it out so it's less noticeable */
+a[href*="streamlit.io/cloud"] p,
+button[title="Manage app"] {
+    opacity: 0.4 !important;
+}
+
+/* Remove any hover effect */
+a[href*="streamlit.io/cloud"]:hover,
+button[title="Manage app"]:hover {
+    background: none !important;
+}
+</style>
+"""
+
+st.markdown(disable_manage_app_mobile_desktop, unsafe_allow_html=True)
+
+st.title("Bawa Medical")
+st.write("Now the Manage App button is inactive on both desktop and mobile.")
 disable_manage_app = """
 <style>
 /* Remove link styles so it looks like plain text */
