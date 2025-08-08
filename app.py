@@ -81,24 +81,24 @@ def home_page():
         </style>
     """, unsafe_allow_html=True)
 
-    # Logo and heading
-    st.markdown("""
+     st.markdown("""
         <div style='text-align:center;'>
             <img src='https://i.ibb.co/YRZV9rp/logo.png' width='100'/>
-            <h1 style='color:#007bff;'>🩺 <b>Bawa Medicals</b></h1>
+            <h1 style='color:#007bff;'>🩺 <b>Bava Medicals</b></h1>
         </div>
     """, unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         with st.container():
+            st.markdown("<div class='custom-box'>", unsafe_allow_html=True)
 
             st.markdown("<h3 style='color:#00695c;'>Welcome!</h3>", unsafe_allow_html=True)
 
             # Buttons using HTML for styling
             st.markdown("""
-                 st.button("Login as User",class='custom-button' on_click=lambda: st.session_state.update({"page": "user_login"}))
-                 st.button("Login as Admin",class='custom-button' on_click=lambda: st.session_state.update({"page": "admin_login"}))
+                <button class='custom-button' onclick="window.location.href='/user_login'">Login as User</button><br><br>
+                <button class='custom-button' onclick="window.location.href='/admin_login'">Login as Admin</button>
             """, unsafe_allow_html=True)
 
             st.markdown("</div>", unsafe_allow_html=True)
