@@ -231,6 +231,8 @@ def user_register():
     if st.button("⬅️ Back"):
         st.session_state.page = "user_login"
         st.rerun()
+
+
 def user_dashboard():
     apply_custom_styles()
     st.title("Welcome to Bava Medical Shop")
@@ -239,76 +241,60 @@ def user_dashboard():
 
     tab1, tab2, tab3 = st.tabs(["🆕 New Order", "📦 Track Order", "📜 Order History"])
 
-    # TAB 1: New Order
     with tab1:
-    st.subheader("Place a New Order")
+        st.subheader("Place a New Order")
+        
+        # Inputs
+        medicine = st.text_input("Medicine Name (optional)")
+        image = st.file_uploader("Upload Medical Sheet (optional)", type=["png", "jpg", "jpeg"])
+        age = st.number_input("Enter Age", min_value=0)
+        gender = st.selectbox("Choose Gender", ["Male", "Female", "Other"])
+        symptoms = st.multiselect("Select Symptoms", ["Headache", "Fever", "Cold", "Cough", "Shoulder Pain", "Leg Pain"])
 
-    # Inputs
-    medicine = st.text_input("Medicine Name (optional)")
-    image = st.file_uploader("Upload Medical Sheet (optional)", type=["png", "jpg", "jpeg"])
-    age = st.number_input("Enter Age", min_value=0)
-    gender = st.selectbox("Choose Gender", ["Male", "Female", "Other"])
-    symptoms = st.multiselect("Select Symptoms", ["Headache", "Fever", "Cold", "Cough", "Shoulder Pain", "Leg Pain"])
-
-    # Store form data in session_state temporarily
-    if "order_confirm_pending" not in st.session_state:
-        st.session_state.order_confirm_pending = False
-
-    if st.button("Order"):
-        if not age or not gender:
-            st.warning("Please enter both Age and Gender before placing the order.")
-        elif not medicine and image is None and not symptoms:
-            st.warning("Please enter medicine name, upload prescription image, or enter symptoms.")
-        else:
-            st.session_state.order_data = {
-                "medicine": medicine,
-                "image": image,
-                "age": age,
-                "gender": gender,
-                "symptoms": symptoms,
-            }
-            st.session_state.order_confirm_pending = True
-            st.experimental_rerun()
-
-    # Confirmation Modal Simulation
-    if st.session_state.order_confirm_pending:
-        st.markdown("---")
-        st.warning("🛒 Are you sure you want to place this order?")
-
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("✅ Confirm Order"):
-                data = st.session_state.order_data
-                image_url = save_image(data["image"]) if data["image"] else ""
-                ist = pytz.timezone('Asia/Kolkata')
-                now = datetime.now(ist)
-                order_time = now.strftime("%d-%m-%Y %H:%M:%S")
-
-                order = {
-                    "email": st.session_state.user_email,
-                    "medicine": data["medicine"],
-                    "image": image_url,
-                    "entered_age": data["age"],
-                    "entered_gender": data["gender"],
-                    "symptoms": data["symptoms"],
-                    "status": "Order Placed",
-                    "timestamp": order_time
-                }
-
-                db.collection("orders").add(order)
-
-                st.success("✅ Order placed successfully!")
-                st.session_state.order_confirm_pending = False
-                st.session_state.user_tab = 2
-                del st.session_state.order_data
+        # Order button
+        if st.button("🛒 Order"):
+            if not age or not gender:
+                st.warning("Please enter both Age and Gender before placing the order.")
+            elif not medicine and image is None and not symptoms:
+                st.warning("Please enter medicine name, upload prescription image, or enter symptoms.")
+            else:
+                # Open confirmation modal
+                st.session_state.show_confirm_modal = True
                 st.experimental_rerun()
 
-        with col2:
-            if st.button("❌ Cancel"):
-                st.session_state.order_confirm_pending = False
-                del st.session_state.order_data
-                st.experimental_rerun()
+        # Handle modal confirmation
+        if st.session_state.get("show_confirm_modal", False):
+            with st.modal("Confirm Order"):
+                st.write("⚠️ Are you sure you want to place this order?")
+                st.write("This action cannot be undone.")
 
+                col1, col2 = st.columns(2)
+                with col1:
+                    if st.button("✅ Yes, Place Order"):
+                        image_url = save_image(image) if image else ""
+                        ist = pytz.timezone('Asia/Kolkata')
+                        now = datetime.now(ist)
+                        order_time = now.strftime("%d-%m-%Y %H:%M:%S")
+                        order = {
+                            "email": st.session_state.user_email,
+                            "medicine": medicine,
+                            "image": image_url,
+                            "entered_age": age,
+                            "entered_gender": gender,
+                            "symptoms": symptoms,
+                            "status": "Order Placed",
+                            "timestamp": order_time
+                        }
+                        db.collection("orders").add(order)
+                        st.success("✅ Order placed successfully!")
+                        st.session_state.show_confirm_modal = False
+                        st.session_state.user_tab = 2  # Switch to Track Order
+                        st.experimental_rerun()
+
+                with col2:
+                    if st.button("❌ Cancel"):
+                        st.session_state.show_confirm_modal = False
+                        st.experimental_rerun()
                 
 
     with tab2:
