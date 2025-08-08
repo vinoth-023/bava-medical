@@ -177,7 +177,7 @@ def user_login():
 
     st.info("New user?")
     if st.button("Register"):
-        st.session_state.page = "user_register"
+        st.session_state.update({  "page": "user_register"})
 
     if st.button("⬅️ Back"):
         st.session_state.page = "home"
