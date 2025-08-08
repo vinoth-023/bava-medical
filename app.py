@@ -31,7 +31,6 @@ def save_image(uploaded_file):
 def home_page():
     st.markdown("""
         <style>
-        /* Background Image */
         .main::before {
             content: "";
             position: fixed;
@@ -43,112 +42,68 @@ def home_page():
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
-            opacity: 0.15;
+            opacity: 0.2;
             z-index: -1;
         }
 
-        /* Card Container */
-        .card {
+        .custom-box {
             padding: 30px;
-            border-radius: 16px;
+            border-radius: 15px;
             background: linear-gradient(to right, #e0f7fa, #ffffff);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
             text-align: center;
-            transition: transform 0.3s ease-in-out;
         }
 
-        .card:hover {
-            transform: scale(1.02);
+        .custom-box:hover {
+            transform: scale(1.03);
         }
 
-        /* Neon Button */
-        .neon-button {
-            margin-top: 20px;
-            background: #0ff;
-            color: #000;
-            font-weight: bold;
-            font-size: 18px;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            box-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff;
-            transition: 0.3s ease-in-out;
-        }
-
-        .neon-button:hover {
-            background: #0ff;
-            box-shadow: 0 0 20px #0ff, 0 0 30px #0ff, 0 0 40px #0ff;
-            transform: scale(1.05);
-        }
-
-        /* Logo Image */
-        .shop-logo {
-            width: 100px;
-            height: auto;
-            margin-bottom: 15px;
-        }
-
-        /* Custom buttons for login */
         .custom-button {
-            background-color: #00bcd4;
-            color: white;
+            margin-top: 15px;
+            display: inline-block;
+            padding: 12px 25px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
             border: none;
-            padding: 12px 24px;
-            margin: 10px auto;
-            font-size: 18px;
-            font-weight: bold;
-            width: 100%;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
+            box-shadow: 0 0 10px #007bff, 0 0 20px #00ffff;
             transition: all 0.3s ease-in-out;
         }
 
         .custom-button:hover {
-            background-color: #0097a7;
+            background-color: #0056b3;
+            box-shadow: 0 0 15px #00ffff, 0 0 25px #007bff;
             transform: scale(1.05);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
         }
         </style>
     """, unsafe_allow_html=True)
 
-    st.markdown("<h1 style='text-align:center; color:#007bff;'>🩺 Bava Medicals</h1>", unsafe_allow_html=True)
+    # Logo and heading
+    st.markdown("""
+        <div style='text-align:center;'>
+            <img src='https://i.ibb.co/YRZV9rp/logo.png' width='100'/>
+            <h1 style='color:#007bff;'>🩺 <b>Bava Medicals</b></h1>
+        </div>
+    """, unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        with st.container():
+            st.markdown("<div class='custom-box'>", unsafe_allow_html=True)
 
-        # Insert logo from uploaded file
-        logo_path = "81295e6e-2d73-44ff-a982-c839d8155925.png"  # The uploaded logo filename
-        st.image(f"./{logo_path}", use_column_width=False, width=100)
+            st.markdown("<h3 style='color:#00695c;'>Welcome!</h3>", unsafe_allow_html=True)
 
-        st.markdown("<h3 style='color:#00796b;'>Welcome!</h3>", unsafe_allow_html=True)
+            # Buttons using HTML for styling
+            st.markdown("""
+                <button class='custom-button' onclick="window.location.href='/user_login'">Login as User</button><br><br>
+                <button class='custom-button' onclick="window.location.href='/admin_login'">Login as Admin</button>
+            """, unsafe_allow_html=True)
 
-        # Neon-style main CTA button
-        st.markdown("<button class='neon-button'>Enter Shop</button>", unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
 
-        # Login buttons (original)
-        login_user = st.button("Login as User", key="login_user_home")
-        login_admin = st.button("Login as Admin", key="login_admin_home")
-
-        if login_user:
-            st.session_state.page = "user_login"
-        elif login_admin:
-            st.session_state.page = "admin_login"
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        # Apply styles to Streamlit login buttons
-        st.markdown("""
-            <script>
-            const buttons = window.parent.document.querySelectorAll('button');
-            buttons.forEach(btn => {
-                if (btn.innerText === "Login as User" || btn.innerText === "Login as Admin") {
-                    btn.classList.add("custom-button");
-                }
-            });
-            </script>
-        """, unsafe_allow_html=True)
 
 def user_login():
     st.subheader("User Login")
