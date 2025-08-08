@@ -39,6 +39,9 @@ def apply_custom_styles():
         #MainMenu {visibility: hidden;}
         header {visibility: hidden;}
         footer {visibility:hidden;}
+
+        [data-testid="stStatusWidget"] {display:none !important;}
+        [data-testid="stAppViewBlockContainer"]+ div{display:none !important;}
         /* Background and fonts */
         body, .main, .block-container {
             background-color: #f0f4f8;
