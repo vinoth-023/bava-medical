@@ -7,8 +7,14 @@ from datetime import datetime
 import os
 import uuid
 import time
+from datetime import datetime
 import pytz
-INDIA_TZ = pytz.timezone("Asia/Kolkata")
+
+# Get current time in IST (Asia/Kolkata)
+ist = pytz.timezone('Asia/Kolkata')
+now = datetime.now(ist)
+
+order_time = now.strftime("%d-%m-%Y %H:%M:%S")
 
 # Firebase Init
 firebase_config = dict(st.secrets["firebase"])
@@ -249,6 +255,9 @@ def user_dashboard():
                 st.warning("Please enter medicine name, upload prescription image, or enter symptoms.")
             else:
                 image_url = save_image(image) if image else ""
+                ist = pytz.timezone('Asia/Kolkata')
+                now = datetime.now(ist)
+                order_time = now.strftime("%d-%m-%Y %H:%M:%S")
                 order = {
                     "email": st.session_state.user_email,
                     "medicine": medicine,
@@ -257,13 +266,12 @@ def user_dashboard():
                     "entered_gender": gender,
                     "symptoms": symptoms,
                     "status": "Order Placed",
-                    "timestamp": datetime.now(INDIA_TZ)
+                    "timestamp": order_time
 
                 }
                 db.collection("orders").add(order)
                 st.success("Order placed successfully!")
-                st.session_state.user_tab = 1
-                st.rerun()
+                st.session_state.user_tab = 2
                 
 
     with tab2:
