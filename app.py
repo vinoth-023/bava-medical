@@ -53,6 +53,7 @@ def home_page():
             border-radius: 16px;
             background: linear-gradient(to right, #e0f7fa, #ffffff);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            text-align: center;
             transition: transform 0.3s ease-in-out;
         }
 
@@ -60,7 +61,35 @@ def home_page():
             transform: scale(1.02);
         }
 
-        /* Button Styles */
+        /* Neon Button */
+        .neon-button {
+            margin-top: 20px;
+            background: #0ff;
+            color: #000;
+            font-weight: bold;
+            font-size: 18px;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff;
+            transition: 0.3s ease-in-out;
+        }
+
+        .neon-button:hover {
+            background: #0ff;
+            box-shadow: 0 0 20px #0ff, 0 0 30px #0ff, 0 0 40px #0ff;
+            transform: scale(1.05);
+        }
+
+        /* Logo Image */
+        .shop-logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        /* Custom buttons for login */
         .custom-button {
             background-color: #00bcd4;
             color: white;
@@ -88,9 +117,17 @@ def home_page():
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("<h3 style='text-align:center; color:#00796b;'>Welcome!</h3>", unsafe_allow_html=True)
 
-        # Placeholder buttons (actual buttons are styled below via JS)
+        # Insert logo from uploaded file
+        logo_path = "81295e6e-2d73-44ff-a982-c839d8155925.png"  # The uploaded logo filename
+        st.image(f"./{logo_path}", use_column_width=False, width=100)
+
+        st.markdown("<h3 style='color:#00796b;'>Welcome!</h3>", unsafe_allow_html=True)
+
+        # Neon-style main CTA button
+        st.markdown("<button class='neon-button'>Enter Shop</button>", unsafe_allow_html=True)
+
+        # Login buttons (original)
         login_user = st.button("Login as User", key="login_user_home")
         login_admin = st.button("Login as Admin", key="login_admin_home")
 
@@ -101,7 +138,7 @@ def home_page():
 
         st.markdown("</div>", unsafe_allow_html=True)
 
-        # Inject JS-based styling
+        # Apply styles to Streamlit login buttons
         st.markdown("""
             <script>
             const buttons = window.parent.document.querySelectorAll('button');
@@ -112,7 +149,6 @@ def home_page():
             });
             </script>
         """, unsafe_allow_html=True)
-
 
 def user_login():
     st.subheader("User Login")
