@@ -7,7 +7,6 @@ from datetime import datetime
 import os
 import uuid
 import time
-import base64
 
 # Firebase Init
 firebase_config = dict(st.secrets["firebase"])
@@ -27,36 +26,8 @@ def save_image(uploaded_file):
         f.write(uploaded_file.getbuffer())
     return filepath
 
-
-
-def set_bg_from_local(image_path):
-    with open(image_path, "rb") as img_file:
-        encoded = base64.b64encode(img_file.read()).decode()
-        st.markdown(
-            f"""
-            <style>
-            .main::before {{
-                content: "";
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100vw;
-                height: 100vh;
-                background-image: url("data:image/jpeg;base64,{encoded}");
-                background-size: cover;
-                background-repeat: no-repeat;
-                background-position: center;
-                opacity: 0.2;
-                z-index: -1;
-            }}
-            </style>
-            """,
-            unsafe_allow_html=True
-        )
-
-
+# -------------------------- Pages --------------------------
 def home_page():
-    set_bg_from_local("medical-bg.jpg")  
     st.markdown("""
         <style>
         .main::before {
@@ -66,7 +37,7 @@ def home_page():
             left: 0;
             width: 100vw;
             height: 100vh;
-            background-image: url("data:image/jpeg;base64,{encoded}");
+            background-image: url('https://i.ibb.co/NZTVxB6/medical-bg.jpg');
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
@@ -76,8 +47,7 @@ def home_page():
         </style>
     """, unsafe_allow_html=True)
 
-
-    st.markdown("<h1 style='text-align:center; color:#007bff;'>🩺 Bawa Medicals</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:center; color:#007bff;'>🩺 Bava Medicals</h1>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         with st.container():
@@ -89,33 +59,21 @@ def home_page():
             st.button("Login as Admin", on_click=lambda: st.session_state.update({"page": "admin_login"}))
             st.markdown("</div>", unsafe_allow_html=True)
 
-set_bg_from_local("medical-bg.jpg")
 def user_login():
     st.subheader("User Login")
-
     email = st.text_input("Email").lower()
     password = st.text_input("Password", type="password")
-
-    # Show warning only if user tries to click Login without entering both fields
-    login_clicked = st.button("Login")
-
-    if login_clicked:
-        if not email or not password:
-            st.warning("⚠️ Please enter both email and password to continue.")
+    if st.button("Login"):
+        users = db.collection("users").where("email", "==", email).where("password", "==", password).get()
+        if users:
+            st.session_state.update({"user_email": email, "page": "user_dashboard"})
         else:
-            users = db.collection("users").where("email", "==", email).where("password", "==", password).get()
-            if users:
-                st.session_state.update({"user_email": email, "page": "user_dashboard"})
-            else:
-                st.error("❌ Invalid credentials")
-
+            st.error("Invalid credentials")
     st.info("New user?")
     if st.button("Register"):
         st.session_state.page = "user_register"
-
     if st.button("⬅️ Back"):
         st.session_state.page = "home"
-
 def user_register():
     st.subheader("Register New User")
 
@@ -154,7 +112,7 @@ def user_register():
         st.session_state.page = "user_login"
 
 def user_dashboard():
-    st.title("Welcome to Bawa Medical Shop")
+    st.title("Welcome to Bava Medical Shop")
     st.caption(f"Logged in as: {st.session_state.user_email}")
     st.button("🔓 Logout", on_click=lambda: st.session_state.clear(), key="logout_user", type="primary")
 
@@ -187,6 +145,7 @@ def user_dashboard():
                 }
                 db.collection("orders").add(order)
                 st.success("Order placed successfully!")
+                st.rerun()
 
     with tab2:
         st.subheader("Track Your Orders")
