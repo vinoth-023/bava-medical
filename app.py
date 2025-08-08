@@ -7,6 +7,7 @@ from datetime import datetime
 import os
 import uuid
 import time
+import base64
 
 # Firebase Init
 firebase_config = dict(st.secrets["firebase"])
@@ -36,7 +37,7 @@ def home_page():
             left: 0;
             width: 100vw;
             height: 100vh;
-            background-image: url('https://i.ibb.co/NZTVxB6/medical-bg.jpg');
+            background-image: url("data:image/jpeg;base64,{encoded}");
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
@@ -45,6 +46,7 @@ def home_page():
         }
         </style>
     """, unsafe_allow_html=True)
+set_bg_from_local("medical-bg.jpg")
 
     st.markdown("<h1 style='text-align:center; color:#007bff;'>🩺 Bawa Medicals</h1>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 2, 1])
