@@ -38,7 +38,7 @@ def apply_custom_styles():
         <style>
         #MainMenu {visibility: hidden;}
         header {visibility: hidden;}
-        footer {visibility:Hidden;}
+        footer {visibility:hidden;}
         /* Background and fonts */
         body, .main, .block-container {
             background-color: #f0f4f8;
