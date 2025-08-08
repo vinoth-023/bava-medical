@@ -25,9 +25,6 @@ db = firestore.client()
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-import streamlit as st
-
-st.set_page_config(page_title="Bawa Medical", page_icon="🩺", layout="centered")
 
 def apply_kiosk_mode():
     st.markdown("""
@@ -51,9 +48,6 @@ def apply_kiosk_mode():
 
 apply_kiosk_mode()
 
-# Your app content here
-st.title("Bawa Medical")
-st.write("Welcome to Bawa Medical Store!")
 def save_image(uploaded_file):
     ext = uploaded_file.name.split(".")[-1]
     filename = f"{uuid.uuid4()}.{ext}"
