@@ -27,83 +27,72 @@ def save_image(uploaded_file):
     return filepath
 
 
-# -------------------------- Pages --------------------------
-def home_page():
-    st.markdown("""
-        <style>
-        .main::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-image: url('https://i.ibb.co/NZTVxB6/medical-bg.jpg');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            opacity: 0.2;
-            z-index: -1;
-        }
+# --- CSS Styles ---
+st.markdown("""
+    <style>
+    .custom-button {
+        margin-top: 15px;
+        padding: 14px 28px;
+        font-size: 16px;
+        color: #fff;
+        background-color: #007bff;
+        border: none;
+        border-radius: 10px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px #007bff, 0 0 20px #00ffff;
+        cursor: pointer;
+    }
 
-        .custom-box {
-            padding: 30px;
-            border-radius: 15px;
-            background: linear-gradient(to right, #e0f7fa, #ffffff);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-            transition: transform 0.3s ease;
-            text-align: center;
-        }
+    .custom-button:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+        box-shadow: 0 0 15px #00ffff, 0 0 30px #007bff;
+    }
 
-        .custom-box:hover {
-            transform: scale(1.03);
-        }
+    .button-container {
+        text-align: center;
+        margin-top: 20px;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-        .custom-button {
-            margin-top: 15px;
-            display: inline-block;
-            padding: 12px 25px;
-            font-size: 16px;
-            color: #fff;
-            background-color: #007bff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 0 10px #007bff, 0 0 20px #00ffff;
-            transition: all 0.3s ease-in-out;
-        }
-
-        .custom-button:hover {
-            background-color: #0056b3;
-            box-shadow: 0 0 15px #00ffff, 0 0 25px #007bff;
-            transform: scale(1.05);
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
-    # Logo and heading
-    st.markdown("""
-        <div style='text-align:center;'>
-            <img src='https://i.ibb.co/YRZV9rp/logo.png' width='100'/>
-            <h1 style='color:#007bff;'>🩺 <b>Bawa Medicals</b></h1>
-            <h3 style='color:#00695c;'>Welcome!</h3>
+# --- Button Actions using JS + session_state ---
+# JavaScript for triggering form submit
+st.markdown("""
+    <form action="" method="post">
+        <div class="button-container">
+            <button class="custom-button" name="user_login" type="submit">Login as User</button><br><br>
+            <button class="custom-button" name="admin_login" type="submit">Login as Admin</button>
         </div>
-    """, unsafe_allow_html=True)
+    </form>
+""", unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns([1, 2, 1])
+# --- Detect button click via query parameters or workaround
+query_params = st.experimental_get_query_params()
+
+if "user_login" in st.session_state:
+    st.session_state.page = "user_login"
+
+elif "admin_login" in st.session_state:
+    st.session_state.page = "admin_login"
+
+# Alternative way using form submit (more reliable):
+form = st.form("login_form")
+with form:
+    col1, col2 = st.columns(2)
+    with col1:
+        user_btn = st.form_submit_button("👤 Login as User")
     with col2:
-        with st.container():
-            
+        admin_btn = st.form_submit_button("🛠️ Login as Admin")
 
-            # Use Streamlit buttons and set session state for routing
-            if st.button("Login as User", key="user_button" class="custom-button"):
-                st.session_state.page = "user_login"
+if user_btn:
+    st.session_state.page = "user_login"
 
-            if st.button("Login as Admin", key="admin_button"):
-                st.session_state.page = "admin_login"
-
-            st.markdown("</div>", unsafe_allow_html=True)
-
+if admin_btn:
+    st.session_state.page = "admin_login"
 
 
 def user_login():
