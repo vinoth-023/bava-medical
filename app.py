@@ -36,6 +36,9 @@ def save_image(uploaded_file):
 def apply_custom_styles():
     st.markdown("""
         <style>
+        #MainMenu {visibility: hidden;}
+        header {visibility: hidden;}
+        footer {visibility:Hidden;}
         /* Background and fonts */
         body, .main, .block-container {
             background-color: #f0f4f8;
