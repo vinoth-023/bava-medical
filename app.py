@@ -26,73 +26,37 @@ def save_image(uploaded_file):
         f.write(uploaded_file.getbuffer())
     return filepath
 
+def home_page():
+    st.markdown("""
+        <style>
+        .main::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: url('https://i.ibb.co/NZTVxB6/medical-bg.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
-# --- CSS Styles ---
-st.markdown("""
-    <style>
-    .custom-button {
-        margin-top: 15px;
-        padding: 14px 28px;
-        font-size: 16px;
-        color: #fff;
-        background-color: #007bff;
-        border: none;
-        border-radius: 10px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        transition: all 0.3s ease;
-        box-shadow: 0 0 10px #007bff, 0 0 20px #00ffff;
-        cursor: pointer;
-    }
-
-    .custom-button:hover {
-        background-color: #0056b3;
-        transform: scale(1.05);
-        box-shadow: 0 0 15px #00ffff, 0 0 30px #007bff;
-    }
-
-    .button-container {
-        text-align: center;
-        margin-top: 20px;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# --- Button Actions using JS + session_state ---
-# JavaScript for triggering form submit
-st.markdown("""
-    <form action="" method="post">
-        <div class="button-container">
-            <button class="custom-button" name="user_login" type="submit">Login as User</button><br><br>
-            <button class="custom-button" name="admin_login" type="submit">Login as Admin</button>
-        </div>
-    </form>
-""", unsafe_allow_html=True)
-
-# --- Detect button click via query parameters or workaround
-query_params = st.experimental_get_query_params()
-
-if "user_login" in st.session_state:
-    st.session_state.page = "user_login"
-
-elif "admin_login" in st.session_state:
-    st.session_state.page = "admin_login"
-
-# Alternative way using form submit (more reliable):
-form = st.form("login_form")
-with form:
-    col1, col2 = st.columns(2)
-    with col1:
-        user_btn = st.form_submit_button("👤 Login as User")
+    st.markdown("<h1 style='text-align:center; color:#007bff;'>🩺 Bava Medicals</h1>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        admin_btn = st.form_submit_button("🛠️ Login as Admin")
-
-if user_btn:
-    st.session_state.page = "user_login"
-
-if admin_btn:
-    st.session_state.page = "admin_login"
+        with st.container():
+            st.markdown("""
+                <div style='padding: 30px; border-radius: 12px; background-color: #f9f9f9; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>
+                    <h3 style='text-align:center;'>Welcome!</h3>
+            """, unsafe_allow_html=True)
+            st.button("Login as User", on_click=lambda: st.session_state.update({"page": "user_login"}))
+            st.button("Login as Admin", on_click=lambda: st.session_state.update({"page": "admin_login"}))
+            st.markdown("</div>", unsafe_allow_html=True)
 
 
 def user_login():
