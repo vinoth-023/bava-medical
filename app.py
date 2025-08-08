@@ -27,52 +27,6 @@ UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
-hide_manage_app = """
-<style>
-/* Hide the menu */
-#MainMenu {visibility: hidden;}
-header {visibility: hidden;}
-
-/* Hide old footer */
-footer {visibility: hidden;}
-
-/* Force hide Manage App injected block */
-button[kind="secondary"] div p,
-a[href*="streamlit.io/cloud"] {
-    display: none !important;
-    visibility: hidden !important;
-}
-
-/* Kill any floating black toolbar in bottom right */
-[data-testid="stToolbarActions"] {
-    display: none !important;
-    visibility: hidden !important;
-}
-
-/* Extra brute-force: hide any element containing 'Manage app' text */
-:has(p:contains("Manage app")),
-:has(span:contains("Manage app")) {
-    display: none !important;
-    visibility: hidden !important;
-}
-</style>
-
-<script>
-// Mutation observer — keep killing the button if it appears later
-const observer = new MutationObserver(() => {
-    document.querySelectorAll("p, span").forEach(el => {
-        if (el.textContent.includes("Manage app")) {
-            el.parentElement.style.display = "none";
-            el.parentElement.style.visibility = "hidden";
-        }
-    });
-});
-observer.observe(document.body, { childList: true, subtree: true });
-</script>
-"""
-
-st.markdown(hide_manage_app, unsafe_allow_html=True)
-
 def save_image(uploaded_file):
     ext = uploaded_file.name.split(".")[-1]
     filename = f"{uuid.uuid4()}.{ext}"
