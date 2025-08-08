@@ -25,7 +25,25 @@ db = firestore.client()
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+import streamlit as st
 
+hide_footer = """
+<style>
+/* Old footer hide */
+footer {visibility: hidden;}
+
+/* Hide Streamlit toolbar & menu */
+#MainMenu {visibility: hidden;}
+
+/* Hide Manage app button (new container) */
+[data-testid="stStatusWidget"] {display: none !important;}
+
+/* Also hide any black floating buttons bottom-right */
+div[role="button"][tabindex="0"] {display: none !important;}
+</style>
+"""
+
+st.markdown(hide_footer, unsafe_allow_html=True)
 def apply_kiosk_mode():
     st.markdown("""
         <style>
