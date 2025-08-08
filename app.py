@@ -361,6 +361,7 @@ def admin_dashboard():
             st.markdown(f"**Age:** {data.get('entered_age', 'N/A')}")
             st.markdown(f"**Gender:** {data.get('entered_gender', 'N/A')}")
             st.markdown(f"**Medicine:** {data.get('medicine', 'N/A')}")
+            st.markdown(f"**no.of.Days:** {data.get('days_required', 'N/A')}")
             st.markdown(f"**Symptoms:** {', '.join(data.get('symptoms', [])) if data.get('symptoms') else 'N/A'}")
             st.markdown(f"**Date:** {data['timestamp']}") 
 
@@ -395,6 +396,7 @@ def admin_dashboard():
             st.markdown(f"**Age:** {data.get('entered_age', 'N/A')}")
             st.markdown(f"**Gender:** {data.get('entered_gender', 'N/A')}")
             st.markdown(f"**Medicine:** {data.get('medicine', 'N/A')}")
+            st.markdown(f"**no.of.Days:** {data.get('days_required', 'N/A')}")
             st.markdown(f"**Symptoms:** {', '.join(data.get('symptoms', [])) if data.get('symptoms') else 'N/A'}")
             st.markdown(f"**Delivered On:** {data.get('timestamp').strftime('%Y-%m-%d %H:%M:%S')}")
 
