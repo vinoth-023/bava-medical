@@ -231,98 +231,99 @@ def user_register():
     if st.button("⬅️ Back"):
         st.session_state.page = "user_login"
         st.rerun()
+
 def user_dashboard():
     apply_custom_styles()
     st.title("Welcome to Bava Medical Shop")
     st.caption(f"Logged in as: {st.session_state.user_email}")
     st.button("🔓 Logout", on_click=lambda: st.session_state.clear(), key="logout_user", type="primary")
 
-    # Setup tabs and default selected tab
-    tabs = st.tabs(["🆕 New Order", "📦 Track Order", "📜 Order History"])
-    selected_tab = st.session_state.get("user_tab", 0)
+    tab1, tab2, tab3 = st.tabs(["🆕 New Order", "📦 Track Order", "📜 Order History"])
 
-    with tabs[0]:
-        if selected_tab == 0:
-            st.subheader("Place a New Order")
-            medicine = st.text_input("Medicine Name (optional)")
-            image = st.file_uploader("Upload Medical Sheet (optional)", type=["png", "jpg", "jpeg"])
-            age = st.number_input("Enter Age", min_value=0)
-            gender = st.selectbox("Choose Gender", ["Male", "Female", "Other"])
-            symptoms = st.multiselect("Select Symptoms", ["Headache", "Fever", "Cold", "Cough", "Shoulder Pain", "Leg Pain"])
+    with tab1:
+        st.subheader("Place a New Order")
+        medicine = st.text_input("Medicine Name (optional)")
+        image = st.file_uploader("Upload Medical Sheet (optional)", type=["png", "jpg", "jpeg"])
+        age = st.number_input("Enter Age", min_value=0)
+        gender = st.selectbox("Choose Gender", ["Male", "Female", "Other"])
+        symptoms = st.multiselect("Select Symptoms", ["Headache", "Fever", "Cold", "Cough", "Shoulder Pain", "Leg Pain"])
 
-            if st.button("Order"):
-                if not age or not gender:
-                    st.warning("Please enter both Age and Gender before placing the order.")
-                elif not medicine and image is None and not symptoms:
-                    st.warning("Please enter medicine name, upload prescription image, or enter symptoms.")
-                else:
-                    image_url = save_image(image) if image else ""
-                    ist = pytz.timezone('Asia/Kolkata')
-                    now = datetime.now(ist)
-                    order_time = now.strftime("%d-%m-%Y %H:%M:%S")
-                    order = {
-                        "email": st.session_state.user_email,
-                        "medicine": medicine,
-                        "image": image_url,
-                        "entered_age": age,
-                        "entered_gender": gender,
-                        "symptoms": symptoms,
-                        "status": "Order Placed",
-                        "timestamp": order_time
-                    }
-                    db.collection("orders").add(order)
-                    st.success("Order placed successfully!")
-                    st.session_state.user_tab = 1  # Move to Track Order tab
-                    st.rerun()
+        if st.button("Order"):
+            if not age or not gender:
+                st.warning("Please enter both Age and Gender before placing the order.")
+            elif not medicine and image is None and not symptoms:
+                st.warning("Please enter medicine name, upload prescription image, or enter symptoms.")
+            else:
+                image_url = save_image(image) if image else ""
+                ist = pytz.timezone('Asia/Kolkata')
+                now = datetime.now(ist)
+                order_time = now.strftime("%d-%m-%Y %H:%M:%S")
+                order = {
+                    "email": st.session_state.user_email,
+                    "medicine": medicine,
+                    "image": image_url,
+                    "entered_age": age,
+                    "entered_gender": gender,
+                    "symptoms": symptoms,
+                    "status": "Order Placed",
+                    "timestamp": order_time
 
-    with tabs[1]:
-        if selected_tab == 1:
-            st.subheader("Track Your Orders")
-            email = st.session_state.user_email.lower()
-            orders = db.collection("orders") \
-                    .where("email", "==", email) \
-                    .where("status", "in", ["Order Placed", "Out for Delivery"]) \
-                    .get()
+                }
+                db.collection("orders").add(order)
+                st.success("Order placed successfully!")
+                st.session_state.user_tab = 2
+                
 
-            if not orders:
-                st.info("No active orders found.")
-            for o in orders:
-                data = o.to_dict()
-                status = data['status']
-                color = "🔴" if status == "Order Placed" else "🟡" if status == "Out for Delivery" else "🟢"
-                st.markdown(f"**Status:** {color} {status}")
-                st.markdown(f"**Date:** {data['timestamp']}")
-                if st.button("Delete", key="delete_" + o.id):
-                    db.collection("orders").document(o.id).delete()
-                    st.success("Order deleted.")
-                    st.rerun()
+    with tab2:
+        st.subheader("Track Your Orders")
+        email = st.session_state.user_email.lower()
+        orders = db.collection("orders") \
+               .where("email", "==", email) \
+               .where("status", "in", ["Order Placed", "Out for Delivery"]) \
+               .get()
+        
+        if not orders:
+            st.info("No active orders found.")
+        for o in orders:
+            data = o.to_dict()
+            status = data['status']
+            if status == "Order Placed":
+                color = "🔴"
+            elif status == "Out for Delivery":
+                color = "🟡"
+            else:
+                color = "🟢"
+                
+            st.markdown(f"**Status:** {color} {status}")
+            st.markdown(f"**Date:** {data['timestamp']}")  # ✅ FIXED: No .strftime() here
+            if st.button("Delete", key="delete_" + o.id):
+                db.collection("orders").document(o.id).delete()
+                st.success("Order deleted.")
+                st.rerun()
 
-    with tabs[2]:
-        if selected_tab == 2:
-            st.subheader("Order History")
-            delivered_orders = db.collection("orders") \
-                                .where("email", "==", st.session_state.user_email) \
-                                .where("status", "==", "Delivered") \
-                                .get()
-            if not delivered_orders:
-                st.info("No delivered orders yet.")
-            for o in delivered_orders:
-                data = o.to_dict()
-                st.markdown(f"✅ Delivered: {data['timestamp']} - {data.get('medicine', 'N/A')}")
-                if st.button("Re-order", key="re_" + o.id):
-                    new_order = data.copy()
-                    ist = pytz.timezone('Asia/Kolkata')
-                    new_order["timestamp"] = datetime.now(ist).strftime("%d-%m-%Y %H:%M:%S")
-                    new_order["status"] = "Order Placed"
-                    db.collection("orders").add(new_order)
-                    st.success("Re-ordered successfully!")
-                    st.session_state.user_tab = 1  # Switch to tracking tab
-                    st.rerun()
-                if st.button("Delete", key="delete_delivered_" + o.id):
-                    db.collection("orders").document(o.id).delete()
-                    st.success("Delivered order deleted.")
-                    st.rerun()
 
+    with tab3:
+        st.subheader("Order History")
+        delivered_orders = db.collection("orders") \
+                             .where("email", "==", st.session_state.user_email) \
+                             .where("status", "==", "Delivered") \
+                             .get()
+        if not delivered_orders:
+            st.info("No delivered orders yet.")
+        for o in delivered_orders:
+            data = o.to_dict()
+            st.markdown(f"✅ Delivered: {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')} - {data.get('medicine', 'N/A')}")
+            if st.button("Re-order", key="re_" + o.id):
+                new_order = data.copy()
+                new_order["timestamp"] = datetime.now()
+                new_order["status"] = "Order Placed"
+                db.collection("orders").add(new_order)
+                st.success("Re-ordered successfully!")
+                st.rerun()
+            if st.button("Delete", key="delete_delivered_" + o.id):
+                db.collection("orders").document(o.id).delete()
+                st.success("Delivered order deleted.")
+                st.rerun()
 
 def admin_login():
     apply_custom_styles()
