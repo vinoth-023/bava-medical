@@ -242,13 +242,9 @@ def user_dashboard():
                 }
                 db.collection("orders").add(order)
                 st.success("✅ Order placed successfully!")
-
-                # Clear the form fields
-                st.session_state.order_medicine = ""
-                st.session_state.order_image = None
-                st.session_state.order_age = 0
-                st.session_state.order_gender = "Male"
-                st.session_state.order_symptoms = []
+                  if st.session_state.order_success:
+                      st.success("✅ Order placed successfully!")
+                      st.session_state.order_success = False
 
                 st.rerun()
 
