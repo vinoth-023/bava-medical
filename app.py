@@ -159,19 +159,29 @@ def home_page():
 def user_login():
     apply_custom_styles()
     st.subheader("User Login")
-    email = st.text_input("Email").lower()
+
+    email = st.text_input("Email").strip().lower()
     password = st.text_input("Password", type="password")
+
     if st.button("Login"):
-        users = db.collection("users").where("email", "==", email).where("password", "==", password).get()
-        if users:
-            st.session_state.update({"user_email": email, "page": "user_dashboard"})
+        if not email or not password:
+            st.warning("Please enter both email and password.")
         else:
-            st.error("Invalid credentials")
+            users = db.collection("users").where("email", "==", email).where("password", "==", password).get()
+            if users:
+                st.success("Login successful!")
+                st.session_state.update({"user_email": email, "page": "user_dashboard"})
+                st.rerun()
+            else:
+                st.error("Invalid credentials. Please try again.")
+
     st.info("New user?")
     if st.button("Register"):
         st.session_state.page = "user_register"
+
     if st.button("⬅️ Back"):
         st.session_state.page = "home"
+
 def user_register():
     apply_custom_styles()
     st.subheader("Register New User")
