@@ -314,7 +314,7 @@ def user_dashboard():
             st.info("No delivered orders yet.")
         for o in delivered_orders:
             data = o.to_dict()
-            st.markdown(f"✅ Delivered: {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')} - {data.get('medicine', 'N/A')}")
+            st.markdown(f"✅ Delivered: {data['timestamp']} - {data.get('medicine', 'N/A')}")
             if st.button("Re-order", key="re_" + o.id):
                 new_order = data.copy()
                 new_order["timestamp"] = datetime.now(ist)
