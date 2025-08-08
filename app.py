@@ -289,7 +289,7 @@ def user_dashboard():
                         st.success("✅ Order placed successfully!")
                         st.session_state.show_confirm_modal = False
                         st.session_state.user_tab = 2  # Switch to Track Order
-                        st.experimental_rerun()
+                        st.rerun()
 
                 with col2:
                     if st.button("❌ Cancel"):
