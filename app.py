@@ -254,6 +254,14 @@ def user_dashboard():
             elif not medicine and image is None and not symptoms:
                 st.warning("Please enter medicine name, upload prescription image, or enter symptoms.")
             else:
+                st.session_state.order_confirm = True
+                
+if st.session_state.order_confirm:
+    with st.modal("🛒 Confirm Your Order"):
+        st.markdown("Do you want to place this order?")
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("✅ Yes, Place Order"):
                 image_url = save_image(image) if image else ""
                 ist = pytz.timezone('Asia/Kolkata')
                 now = datetime.now(ist)
@@ -267,12 +275,17 @@ def user_dashboard():
                     "symptoms": symptoms,
                     "status": "Order Placed",
                     "timestamp": order_time
-
                 }
                 db.collection("orders").add(order)
-                st.success("Order placed successfully!")
+                st.success("✅ Order placed successfully!")
                 st.session_state.user_tab = 2
-                
+                st.session_state.order_confirm = False
+                st.rerun()
+        with col2:
+            if st.button("❌ Cancel"):
+                st.info("Order cancelled.")
+                st.session_state.order_confirm = False
+                st.rerun()                
 
     with tab2:
         st.subheader("Track Your Orders")
