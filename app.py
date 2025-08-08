@@ -63,17 +63,25 @@ def user_login():
     st.subheader("User Login")
     email = st.text_input("Email").lower()
     password = st.text_input("Password", type="password")
+
     if st.button("Login"):
-        users = db.collection("users").where("email", "==", email).where("password", "==", password).get()
-        if users:
-            st.session_state.update({"user_email": email, "page": "user_dashboard"})
+        # 🔐 Check that both fields are filled
+        if not email or not password:
+            st.warning("Please enter both email and password.")
         else:
-            st.error("Invalid credentials")
+            users = db.collection("users").where("email", "==", email).where("password", "==", password).get()
+            if users:
+                st.session_state.update({"user_email": email, "page": "user_dashboard"})
+            else:
+                st.error("Invalid credentials")
+
     st.info("New user?")
     if st.button("Register"):
         st.session_state.page = "user_register"
+
     if st.button("⬅️ Back"):
         st.session_state.page = "home"
+
 def user_register():
     st.subheader("Register New User")
 
