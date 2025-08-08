@@ -61,70 +61,15 @@ def home_page():
             st.markdown("</div>", unsafe_allow_html=True)
 
 def user_login():
-    st.markdown("""
-        <style>
-        .login-container {
-            padding: 30px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #e0f7fa, #ffffff);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            margin: auto;
-            transition: transform 0.3s ease;
-        }
-
-        .login-container:hover {
-            transform: scale(1.03);
-        }
-
-        .custom-button {
-            background-color: #00bcd4;
-            color: white;
-            border: none;
-            padding: 10px 24px;
-            font-size: 16px;
-            border-radius: 8px;
-            margin-top: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease-in-out;
-        }
-
-        .custom-button:hover {
-            background-color: #0097a7;
-            transform: scale(1.05);
-        }
-
-        .back-button {
-            background-color: #f44336;
-            color: white;
-        }
-
-        .back-button:hover {
-            background-color: #d32f2f;
-        }
-
-        .register-button {
-            background-color: #4caf50;
-        }
-
-        .register-button:hover {
-            background-color: #388e3c;
-        }
-
-        input, textarea, select {
-            border-radius: 6px !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
-    st.markdown("<div class='login-container'>", unsafe_allow_html=True)
-
-    st.markdown("<h2 style='text-align:center; color:#00796b;'>👤 User Login</h2>", unsafe_allow_html=True)
+    st.subheader("User Login")
 
     email = st.text_input("Email").lower()
     password = st.text_input("Password", type="password")
 
-    if st.button("Login", key="user_login_button"):
+    # Show warning only if user tries to click Login without entering both fields
+    login_clicked = st.button("Login")
+
+    if login_clicked:
         if not email or not password:
             st.warning("⚠️ Please enter both email and password to continue.")
         else:
@@ -134,35 +79,12 @@ def user_login():
             else:
                 st.error("❌ Invalid credentials")
 
-    st.markdown("<hr>", unsafe_allow_html=True)
+    st.info("New user?")
+    if st.button("Register"):
+        st.session_state.page = "user_register"
 
-    st.markdown("<p style='text-align:center;'>New user?</p>", unsafe_allow_html=True)
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("⬅️ Back", key="back_user_login"):
-            st.session_state.page = "home"
-    with col2:
-        if st.button("Register", key="go_register"):
-            st.session_state.page = "user_register"
-
-    # Apply button styles using JS-injected class names
-    st.markdown("""
-        <script>
-        const buttons = window.parent.document.querySelectorAll('button');
-        buttons.forEach(btn => {
-            if (btn.innerText === "Login") {
-                btn.classList.add("custom-button");
-            } else if (btn.innerText === "⬅️ Back") {
-                btn.classList.add("custom-button", "back-button");
-            } else if (btn.innerText === "Register") {
-                btn.classList.add("custom-button", "register-button");
-            }
-        });
-        </script>
-    """, unsafe_allow_html=True)
-
-    st.markdown("</div>", unsafe_allow_html=True)
+    if st.button("⬅️ Back"):
+        st.session_state.page = "home"
 
 def user_register():
     st.subheader("Register New User")
