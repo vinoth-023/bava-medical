@@ -86,23 +86,24 @@ def home_page():
         <div style='text-align:center;'>
             <img src='https://i.ibb.co/YRZV9rp/logo.png' width='100'/>
             <h1 style='color:#007bff;'>🩺 <b>Bawa Medicals</b></h1>
+            st.markdown("<h3 style='color:#00695c;'>Welcome!</h3>", unsafe_allow_html=True)
         </div>
     """, unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         with st.container():
-            st.markdown("<div class='custom-box'>", unsafe_allow_html=True)
+            
 
-            st.markdown("<h3 style='color:#00695c;'>Welcome!</h3>", unsafe_allow_html=True)
+            # Use Streamlit buttons and set session state for routing
+            if st.button("Login as User", key="user_button"):
+                st.session_state.page = "user_login"
 
-            # Buttons using HTML for styling
-            st.markdown("""
-                <button class='custom-button' onclick="window.location.href='/user_login'">Login as User</button><br><br>
-                <button class='custom-button' onclick="window.location.href='/admin_login'">Login as Admin</button>
-            """, unsafe_allow_html=True)
+            if st.button("Login as Admin", key="admin_button"):
+                st.session_state.page = "admin_login"
 
             st.markdown("</div>", unsafe_allow_html=True)
+
 
 
 def user_login():
