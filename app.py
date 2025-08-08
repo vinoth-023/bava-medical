@@ -217,46 +217,49 @@ def user_dashboard():
         image = st.file_uploader("Upload Medical Sheet (optional)", type=["png", "jpg", "jpeg"], key="order_image")
         age = st.number_input("Enter Age", min_value=0, key="order_age")
         gender = st.selectbox("Choose Gender", ["Male", "Female", "Other"], key="order_gender")
-        symptoms = st.multiselect("Select Symptoms", ["Headache", "Fever", "Cold", "Cough", "Shoulder Pain", "Leg Pain"], key="order_symptoms")
-        
+        symptoms = st.multiselect(
+            "Select Symptoms",
+            ["Headache", "Fever", "Cold", "Cough", "Shoulder Pain", "Leg Pain"],
+            key="order_symptoms"
+        )
+
         if st.button("Order", key="place_order_btn"):
             if not age or not gender:
                 st.warning("Please enter both Age and Gender before placing the order.")
             elif not medicine and image is None and not symptoms:
                 st.warning("Please enter medicine name, upload prescription image, or enter symptoms.")
-        else:
-            image_url = save_image(image) if image else ""
-            order = {
-                "email": st.session_state.user_email,
-                "medicine": medicine,
-                "image": image_url,
-                "entered_age": age,
-                "entered_gender": gender,
-                "symptoms": symptoms,
-                "status": "Order Placed",
-                "timestamp": datetime.now()
-            }
-            db.collection("orders").add(order)
-            st.success("✅ Order placed successfully!")
+            else:
+                image_url = save_image(image) if image else ""
+                order = {
+                    "email": st.session_state.user_email,
+                    "medicine": medicine,
+                    "image": image_url,
+                    "entered_age": age,
+                    "entered_gender": gender,
+                    "symptoms": symptoms,
+                    "status": "Order Placed",
+                    "timestamp": datetime.now()
+                }
+                db.collection("orders").add(order)
+                st.success("✅ Order placed successfully!")
 
-            # ⬅️ Clear the input fields manually
-            st.session_state.order_medicine = ""
-            st.session_state.order_image = None
-            st.session_state.order_age = 0
-            st.session_state.order_gender = "Male"
-            st.session_state.order_symptoms = []
+                # Clear the form fields
+                st.session_state.order_medicine = ""
+                st.session_state.order_image = None
+                st.session_state.order_age = 0
+                st.session_state.order_gender = "Male"
+                st.session_state.order_symptoms = []
 
-            st.rerun()  # Optional – in case you want to refresh the tab view
-
+                st.rerun()
 
     with tab2:
         st.subheader("Track Your Orders")
         email = st.session_state.user_email.lower()
         orders = db.collection("orders") \
-               .where("email", "==", email) \
-               .where("status", "in", ["Order Placed", "Out for Delivery"]) \
-               .get()
-        
+                   .where("email", "==", email) \
+                   .where("status", "in", ["Order Placed", "Out for Delivery"]) \
+                   .get()
+
         if not orders:
             st.info("No active orders found.")
         for o in orders:
@@ -268,14 +271,13 @@ def user_dashboard():
                 color = "🟡"
             else:
                 color = "🟢"
-                
+
             st.markdown(f"**Status:** {color} {status}")
             st.markdown(f"**Date:** {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
             if st.button("Delete", key="delete_" + o.id):
                 db.collection("orders").document(o.id).delete()
                 st.success("Order deleted.")
                 st.rerun()
-
 
     with tab3:
         st.subheader("Order History")
