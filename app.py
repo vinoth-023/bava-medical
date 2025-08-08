@@ -238,9 +238,9 @@ def user_dashboard():
     st.caption(f"Logged in as: {st.session_state.user_email}")
     st.button("🔓 Logout", on_click=lambda: st.session_state.clear(), key="logout_user", type="primary")
 
-    tab1, tab2, tab3 = st.tabs(["🆕 New Order", "📦 Track Order", "📜 Order History"])
+    tab[1], tab[2], tab[3] = st.tabs(["🆕 New Order", "📦 Track Order", "📜 Order History"])
 
-    with tab1:
+    with tab[1]:
         st.subheader("Place a New Order")
         medicine = st.text_input("Medicine Name (optional)")
         image = st.file_uploader("Upload Medical Sheet (optional)", type=["png", "jpg", "jpeg"])
@@ -271,10 +271,10 @@ def user_dashboard():
                 }
                 db.collection("orders").add(order)
                 st.success("Order placed successfully!")
-                st.session_state.user_tab = 2
+                st.session_state.user_tab = [2]
                 
 
-    with tab2:
+    with tab[2]:
         st.subheader("Track Your Orders")
         email = st.session_state.user_email.lower()
         orders = db.collection("orders") \
@@ -302,7 +302,7 @@ def user_dashboard():
                 st.rerun()
 
 
-    with tab3:
+    with tab[3]:
         st.subheader("Order History")
         delivered_orders = db.collection("orders") \
                              .where("email", "==", st.session_state.user_email) \
