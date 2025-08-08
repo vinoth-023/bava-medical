@@ -97,8 +97,8 @@ def home_page():
 
             # Buttons using HTML for styling
             st.markdown("""
-                 st.button("Login as User",class="custom button" on_click=lambda: st.session_state.update({"page": "user_login"}))
-                 st.button("Login as Admin",class="custom button" on_click=lambda: st.session_state.update({"page": "admin_login"}))
+                 st.button("Login as User",class="custom-button" on_click=lambda: st.session_state.update({"page": "user_login"}))
+                 st.button("Login as Admin",class="custom-button" on_click=lambda: st.session_state.update({"page": "admin_login"}))
             """, unsafe_allow_html=True)
 
             st.markdown("</div>", unsafe_allow_html=True)
