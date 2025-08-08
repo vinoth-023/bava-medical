@@ -26,9 +26,6 @@ db = firestore.client()
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-import streamlit as st
-
-st.set_page_config(page_title="Bawa Medical", page_icon="🩺")
 
 disable_manage_app_mobile_desktop = """
 <style>
@@ -57,26 +54,6 @@ button[title="Manage app"]:hover {
 
 st.markdown(disable_manage_app_mobile_desktop, unsafe_allow_html=True)
 
-st.title("Bawa Medical")
-st.write("Now the Manage App button is inactive on both desktop and mobile.")
-disable_manage_app = """
-<style>
-/* Remove link styles so it looks like plain text */
-a[href*="streamlit.io/cloud"] {
-    pointer-events: none !important;  /* Disable clicking */
-    cursor: default !important;       /* No hand icon */
-    color: inherit !important;        /* Normal text color */
-    text-decoration: none !important; /* Remove underline */
-}
-
-/* Optional: make it more faded so users ignore it */
-a[href*="streamlit.io/cloud"] p {
-    opacity: 0.5 !important;
-}
-</style>
-"""
-
-st.markdown(disable_manage_app, unsafe_allow_html=True)
 def save_image(uploaded_file):
     ext = uploaded_file.name.split(".")[-1]
     filename = f"{uuid.uuid4()}.{ext}"
@@ -84,6 +61,7 @@ def save_image(uploaded_file):
     with open(filepath, "wb") as f:
         f.write(uploaded_file.getbuffer())
     return filepath
+    
 def apply_custom_styles():
     st.markdown("""
         <style>
