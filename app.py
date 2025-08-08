@@ -234,6 +234,7 @@ def user_register():
 
 def user_dashboard():
     apply_custom_styles()
+    ist = pytz.timezone('Asia/Kolkata')
     st.title("Welcome to Bawa Medical Shop")
     st.caption(f"Logged in as: {st.session_state.user_email}")
     st.button("🔓 Logout", on_click=lambda: st.session_state.clear(), key="logout_user", type="primary")
