@@ -317,7 +317,7 @@ def user_dashboard():
             st.markdown(f"✅ Delivered: {data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')} - {data.get('medicine', 'N/A')}")
             if st.button("Re-order", key="re_" + o.id):
                 new_order = data.copy()
-                new_order["timestamp"] = datetime.now()
+                new_order["timestamp"] = datetime.now(ist)
                 new_order["status"] = "Order Placed"
                 db.collection("orders").add(new_order)
                 st.success("Re-ordered successfully!")
