@@ -259,7 +259,8 @@ def user_dashboard():
                 }
                 db.collection("orders").add(order)
                 st.success("Order placed successfully!")
-                st.rerun()
+                order={}
+                
 
     with tab2:
         st.subheader("Track Your Orders")
