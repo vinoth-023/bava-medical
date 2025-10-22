@@ -9,7 +9,13 @@ import os
 import json
 # -------------------- Firebase Setup --------------------
 if not firebase_admin._apps:
+    # Load secret
     cred_dict = st.secrets["FIREBASE"]
+
+    # Fix the private key newlines
+    cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
+
+    # Initialize Firebase
     cred = credentials.Certificate(cred_dict)
     firebase_admin.initialize_app(cred)
 
