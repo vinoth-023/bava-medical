@@ -15,7 +15,7 @@ if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
 
 db = firestore.client()
-
+firebase_config = dict(st.secrets["firebase"])
 # -------------------- Admin UI --------------------
 st.title("📋 Admin Dashboard")
 st.write("Monitor all submitted signatures:")
