@@ -7,7 +7,6 @@ from fpdf import FPDF
 import tempfile
 import os
 import json
-from firebase_admin import credentials
 # -------------------- Firebase Setup --------------------
 if not firebase_admin._apps:
     cred_dict = st.secrets["FIREBASE"]
@@ -15,7 +14,6 @@ if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
 
 db = firestore.client()
-firebase_config = dict(st.secrets["firebase"])
 # -------------------- Admin UI --------------------
 st.title("📋 Admin Dashboard")
 st.write("Monitor all submitted signatures:")
