@@ -6,11 +6,11 @@ import base64
 from fpdf import FPDF
 import tempfile
 import os
-import json
+
 # -------------------- Firebase Setup --------------------
 if not firebase_admin._apps:
-    # Load secret
-    cred_dict = st.secrets["FIREBASE"]
+    # Make a copy of the secrets dict
+    cred_dict = dict(st.secrets["FIREBASE"])
 
     # Fix the private key newlines
     cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
@@ -20,6 +20,7 @@ if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
 
 db = firestore.client()
+
 # -------------------- Admin UI --------------------
 st.title("📋 Admin Dashboard")
 st.write("Monitor all submitted signatures:")
